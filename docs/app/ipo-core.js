@@ -1,6 +1,10 @@
 // The browser demo's logic: portfolio.py's sizing rules and verify.py's KEY NUMBERS checks, line for line.
-// tests/test_js_parity.py runs both on the same inputs and fails if they disagree, so this file and the
-// Python cannot drift apart. The projection charts at the end are JS-only; the same test checks their properties.
+// tests/src/test_js_parity.py runs both on the same inputs and fails if they disagree on: the portfolio view and its
+// refusals' wording; every sizing result (shares, limits, binding rule, warnings, symbol, conviction, the money to the cent);
+// portfolio._when to the microsecond, in three time zones; and, for every KEY NUMBERS check, its name and whether it passed.
+// A check's detail text is compared only where this file writes one (a type's name, the rating as written, the rating
+// rule's "expected return" line, a stale price's age); the Python's other details are not reproduced here and not compared.
+// The projection charts at the end are JS-only; the same test file checks their properties.
 // Loaded by docs/app/index.html, and by Node for that test.
 (function (root) {
   "use strict";
@@ -21,7 +25,7 @@
 
   function validate(raw) {
     if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new PortfolioError("the portfolio file must be a JSON object");
-    const rules = Object.assign({}, DEFAULT_RULES, raw.rules || {});
+    const rules = Object.assign(Object.create(null), DEFAULT_RULES, raw.rules || {});   // a "__proto__" key is data, not the prototype
     for (const k of ["max_position_pct", "max_sector_pct", "risk_per_trade_pct", "min_cash_pct"]) {
       rules[k] = num(rules[k], "rules." + k);
       if (rules[k] > 100) throw new PortfolioError("rules." + k + " is a percentage: at most 100");
@@ -37,7 +41,7 @@
     if (typeof halted !== "boolean") throw new PortfolioError("halted must be true or false");
     const dayPnl = raw.day_pnl === undefined ? 0 : raw.day_pnl;
     if (typeof dayPnl !== "number" || !isFinite(dayPnl)) throw new PortfolioError("day_pnl must be a number (negative for a loss)");
-    const scale = {};
+    const scale = Object.create(null);         // likewise a conviction named "__proto__"
     for (const [k, v] of Object.entries(rules.conviction_scale || {})) scale[String(k)] = num(v, "conviction_scale." + k);
     rules.conviction_scale = scale;
     const holdings = [], seen = new Set(), text = (x, fallback) => truthy(x) ? pyStr(x) : fallback;   // str(x or fallback)
@@ -77,7 +81,7 @@
     }
     const cashPct = equity ? 100 * pf.cash / equity : 0;
     if (cashPct < rules.min_cash_pct - SLACK) breaches.push({ rule: "min_cash_pct", cash_pct: round2(cashPct) });
-    const sectorPct = {};
+    const sectorPct = Object.create(null);      // no prototype: a sector named "__proto__" is just a name
     for (const [s, v] of Object.entries(sectors)) sectorPct[s] = equity ? 100 * v / equity : 0;
     return { as_of: pf.as_of, equity, cash: pf.cash, cash_pct: cashPct, holdings: rows, sector_pct: sectorPct, unpriced, rule_breaches: breaches, rules,
       day_pnl: pf.day_pnl || 0, equity_high: pf.equity_high == null ? null : pf.equity_high, halted: !!pf.halted, invested };
@@ -85,20 +89,43 @@
 
   const round2 = (x) => Math.round(x * 100) / 100;
 
-  // portfolio._when, in ms since the epoch: the forms datetime.fromisoformat reads (YYYY-MM-DD or YYYYMMDD, then any one
-  // character and HH[:MM[:SS[.fff]]] or HHMMSS, then Z or +HH:MM), a bare date or one with no zone read as UTC.
-  // Date.parse would also take "Oct 8 2026" or "0", roll 2026-02-30 into March, and read "2026-10-08 20:00" as local time.
-  const ISO_WHEN = /^(\d{4})(-?)(\d{2})\2(\d{2})(?:[^](\d{2})(?:(:?)(\d{2})(?:\6(\d{2})(?:[.,](\d+))?)?)?(Z|[+-]\d{2}(?::?\d{2})?)?)?$/u;
+  // portfolio._when, in ms since the epoch: the forms datetime.fromisoformat reads in both Python 3.12 and 3.14, after
+  // portfolio._when has turned every "Z" into "+00:00". A date is YYYY-MM-DD, YYYYMMDD or an ISO week (YYYY-Www[-D],
+  // YYYYWww[D]); then, optionally, any one character and HH[:MM[:SS[.f]]] (or the same with no colons, "," for "."), then
+  // an offset +HH[:MM[:SS[.f]]] (colons or none, as the time has them). No zone means UTC, so a bare date is that day's
+  // midnight UTC, and "2026-10-09Z" (which Python reads as date, "+", 00:00) is too. Fractions keep their first 6 digits.
+  // It refuses the rest rather than misreading it: Date.parse would take "Oct 8 2026" or "0", roll 2026-02-30 into March
+  // and read "2026-10-08 20:00" as local time. Python 3.12 alone reads a fraction on the hour or minute ("11.5") and
+  // 3.14 alone reads "24:00"; they disagree with each other, so those are refused here.
+  const ISO_WHEN = new RegExp(
+    String.raw`^(?<y>\d{4})(?:(?<ds>-?)(?<mo>\d{2})\k<ds>(?<d>\d{2})|(?<ws>-?)W(?<w>\d{2})(?:\k<ws>(?<wd>\d)(?!\d))?(?!\d))` +
+    String.raw`(?:[^](?<h>\d{2})(?:(?<c>:?)(?<mi>\d{2})(?:\k<c>(?<s>\d{2})(?:[.,](?<f>\d+))?)?)?(?<dot>[.,](?=[+-]))?` +
+    String.raw`(?:(?<oz>[+-])(?<oh>\d{2})(?:(?<oc>:?)(?<om>\d{2})(?:\k<oc>(?<os>\d{2}))?)?)?)?$`, "u");
+  const DAY = 864e5;
   function when(v, what) {
-    const m = ISO_WHEN.exec(pyStr(v));
+    const m = ISO_WHEN.exec(pyStr(v).replace(/Z/g, "+00:00"));
     if (m) {
-      const [y, mo, day, h, mi, s] = [1, 3, 4, 5, 7, 8].map((g) => +(m[g] || 0)), frac = Number("0." + (m[9] || ""));
-      const z = /^([+-])(\d\d):?(\d\d)?$/.exec((m[10] || "Z").replace("Z", "+00")), oh = +z[2], om = +(z[3] || 0);
-      const d = new Date(0);
-      d.setUTCFullYear(y, mo - 1, day);
-      d.setUTCHours(h, mi, s);
-      if (y >= 1 && d.getUTCMonth() === mo - 1 && d.getUTCDate() === day && h < 24 && mi < 60 && s < 60 && oh < 24 && om < 60)
-        return d.getTime() + frac * 1000 - (z[1] === "-" ? -1 : 1) * (oh * 60 + om) * 60000;
+      const g = m.groups, n = (k) => +(g[k] || 0), micro = (f) => Number("0." + (f || "0").slice(0, 6).padEnd(6, "0")) * 1e3;   // ms
+      const y = n("y"), d = new Date(0);
+      let ok = y >= 1, day = 0;
+      d.setUTCFullYear(y, 0, 1);
+      if (g.w === undefined) {
+        d.setUTCFullYear(y, n("mo") - 1, n("d"));
+        ok = ok && d.getUTCMonth() === n("mo") - 1 && d.getUTCDate() === n("d");
+        day = d.getTime();
+      } else {                                                    // week w of year y: week 1 holds January 4th
+        const jan1 = d.getUTCDay(), leap = y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0);
+        const weeks = jan1 === 4 || (jan1 === 3 && leap) ? 53 : 52, wd = g.wd === undefined ? 1 : n("wd");
+        d.setUTCFullYear(y, 0, 4);
+        const monday = d.getTime() - ((d.getUTCDay() || 7) - 1) * DAY;
+        ok = ok && n("w") >= 1 && n("w") <= weeks && wd >= 1 && wd <= 7;
+        day = monday + ((n("w") - 1) * 7 + wd - 1) * DAY;
+        d.setTime(day);
+        ok = ok && d.getUTCFullYear() >= 1 && d.getUTCFullYear() <= 9999;
+      }
+      const sign = g.oz === "-" ? -1 : 1, off = (n("oh") * 3600 + n("om") * 60 + n("os")) * 1e3;
+      if (ok && !(g.dot && g.f) && n("h") < 24 && n("mi") < 60 && n("s") < 60 && off < DAY)
+        return day + (n("h") * 3600 + n("mi") * 60 + n("s")) * 1e3 + micro(g.f) - sign * off;
     }
     throw new PortfolioError(what + " must be an ISO date or date-time");
   }
@@ -308,7 +335,7 @@
   const pyField = (o, key) => pyStr(o[key], tagAt(o, key));                               // str(o.get(key))
   // [str(u) for u in verify._as_list(o.get(key))]
   const pyStrList = (o, key) => Array.isArray(o[key]) ? o[key].map((u, i) => pyStr(u, tagAt(o[key], i))) : asList(o[key]).map((u) => pyStr(u, tagAt(o, key)));
-  const pyType = (x, tag) => Array.isArray(x) ? "list" : typeof x === "string" ? "str" : typeof x === "number" ? (tag === "f" ? "float" : "int") : typeof x === "boolean" ? "bool" : "dict";
+  const pyType = (x, tag) => Array.isArray(x) ? "list" : typeof x === "string" ? "str" : typeof x === "number" ? (tag === "f" || (tag === undefined && !Number.isInteger(x)) ? "float" : "int") : typeof x === "boolean" ? "bool" : "dict";
   const DIGITS = "\\d(?:_?\\d)*", FLOAT = new RegExp("^[+-]?(?:" + DIGITS + "(?:\\.(?:" + DIGITS + ")?)?|\\." + DIGITS + ")(?:[eE][+-]?" + DIGITS + ")?$");
   function pyFloat(x) {                         // Python's float(): a number or a numeric string; null, "", lists and objects raise
     if (typeof x === "number") return x;
@@ -417,7 +444,7 @@
         }
         if (er !== null) {
           const wantR = expectedRating(er, k.conviction);
-          add("rating follows the thresholds", rating === wantR, "expected return " + er + "%, conviction " + pyField(k, "conviction") + " -> " + wantR + "; block says " + pyField(k, "rating"));
+          add("rating follows the thresholds", rating === wantR, "expected return " + pyStr(er, tagAt(scen, "expected_return_pct")) + "%, conviction " + pyField(k, "conviction") + " -> " + wantR + "; block says " + pyField(k, "rating"));
           add("no positive rating with an expected loss", !(er < 0 && rating === "Overweight"));
         }
         const ipo = k.ipo_ratings;
@@ -534,7 +561,7 @@
   };
   const RATING_RANK = { Overweight: 2, "Equal-weight": 1, Underweight: 0 };
   function sortTrades(rows, key, dir = "best") {
-    if (!TRADE_SORTS[key]) throw new Error("unknown sort: " + key);
+    if (!Object.hasOwn(TRADE_SORTS, key)) throw new Error("unknown sort: " + key);
     const value = (r) => key === "rating" ? RATING_RANK[r.rating] : r[key];
     let sign = TRADE_SORTS[key].best === "high" ? -1 : 1;
     if (dir === "worst") sign = -sign;
@@ -550,6 +577,6 @@
   // The rating rule's numbers, for the page's gauge and notes: one source, the same as verify.py.
   const THRESHOLDS = Object.freeze({ overweight: OVERWEIGHT, underweight: UNDERWEIGHT, conviction_ok: Object.freeze([...CONVICTION_OK]) });
 
-  const api = { PortfolioError, validate, valued, sizePosition, extract, check, checkMemo, expectedRating, project, tradeMetrics, sortTrades, TRADE_SORTS, THRESHOLDS, PROJECTION, round2 };
+  const api = { PortfolioError, when, validate, valued, sizePosition, extract, check, checkMemo, expectedRating, project, tradeMetrics, sortTrades, TRADE_SORTS, THRESHOLDS, PROJECTION, round2 };
   if (typeof module === "object" && module.exports) module.exports = api; else root.IpoCore = api;
 })(typeof self !== "undefined" ? self : this);

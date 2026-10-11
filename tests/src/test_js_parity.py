@@ -4,6 +4,7 @@ Runs the same inputs through both and fails on any difference, so the demo canno
 (set IPO_BOT_NODE to its path if it is not on PATH); skipped without it.
 """
 import copy
+import datetime as dt
 import json
 import os
 import pathlib
@@ -69,6 +70,15 @@ SIZES = [
     (EXAMPLE, ["DDD", 50, 50, "Medium", None]), (EXAMPLE, ["DDD", 0, -1, "Medium", None]),
     (EXAMPLE, ["DDD", "50", 45, "Medium", None]), (EXAMPLE, ["DDD", 50, -1, "Medium", None]),
     ({**EXAMPLE, "rules": {**EXAMPLE["rules"], "conviction_scale": {"b": 1, "a": 2}}}, ["DDD", 50, 45, "Medium", None]),
+    # "__proto__" as a name is a name like any other: a sector (the cap must see the 100 shares already held in it),
+    # a conviction, and a rule key (which must not hand its contents to the rules as inherited settings)
+    ({"cash": 1000, "holdings": [{"symbol": "AAA", "shares": 100, "price": 10, "sector": "__proto__"}], "rules": {"max_sector_pct": 30}},
+     ["BBB", 10, 9, "Medium", "__proto__"]),
+    ({"cash": 1000, "holdings": [{"symbol": "AAA", "shares": 100, "price": 10, "sector": "__proto__"}], "rules": {"max_sector_pct": 30}},
+     ["AAA", 10, 9, "Medium", None]),
+    ({**EXAMPLE, "rules": {**EXAMPLE["rules"], "conviction_scale": {"__proto__": 2, "Medium": 1}}}, ["DDD", 50, 45, "__proto__", None]),
+    ({**EXAMPLE, "rules": {**EXAMPLE["rules"], "conviction_scale": {"Medium": 1}}}, ["DDD", 50, 45, "__proto__", None]),
+    ({**EXAMPLE, "rules": {**EXAMPLE["rules"], "__proto__": {"max_volume_pct": 1, "max_order_value": 100}}}, ["DDD", 50, 45, "Medium", None]),
 ]
 
 
@@ -94,9 +104,17 @@ WHEN = ["2026-10-09T11:00:00", "2026-10-09 11:00", "2026-10-09x11:00", "20261009
         "2026-10-09T16:30:00.5+05:30", "2026-10-09T16:30+0530", "2026-10-09T06:59-04", "2026-10-09T11:00:00,25Z",
         "2026-10-09T12:00Z", "2026-10-10", "2026-10-09",
         "Oct 9 2026", "2026-02-30", "0", "", "2026-10-09T25:00", "2026-10-09T11:60", "2026-10-09T11:00:00+25:00",
-        "2026-1009", "2026-10-09T11:0000", "0000-10-09", "2026-10-09T11:00 ", "2026-10-09T11:00:00z"]
+        "2026-1009", "2026-10-09T11:0000", "0000-10-09", "2026-10-09T11:00 ", "2026-10-09T11:00:00z",
+        # NOW + 48h is the edge of the blackout; these sit 1 second to 7 hours either side of it, so reading any of them in
+        # the machine's own zone (the pre-fix bug), or dropping a second of offset or a digit of fraction, flips the verdict
+        "2026-10-09T12:00:00", "2026-10-09 13:00", "2026-10-07 06:00", "2026-10-09T13:00:00", "2026-10-07T06:00:00", "2026-10-09T12:00:00+00:00:01",
+        "2026-10-09T12:00:00-00:00:01", "2026-10-09T12:00:00.000001", "2026-10-09T12:00:00.0000009",
+        "2026-10-09T12:00:00-000001", "2026-10-09T12:00-00:00:01"]
 GUARD_CASES += [(GUARDED, ["DDD", 50, 45, "Medium", "Energy"], {"next_earnings": w, "avg_volume": 900_000, "now": NOW})
                 for w in WHEN]
+# the same instant, spelt other ways: a Z on a bare date, week dates, an offset with seconds, a "." before an offset
+GUARD_CASES += [(GUARDED, ["DDD", 50, 45, "Medium", "Energy"], {"next_earnings": w, "avg_volume": 900_000, "now": NOW})
+                for w in ("2026-10-09Z", "2026-W41-5", "2026W415T12", "2026-W41-5 11:59:59+00:00:01", "2026-10-09T12:00.Z", "2026-10-09T11:00:00.+00:00")]
 GUARD_CASES += [(GUARDED, ["DDD", 50, 45, "Medium", "Energy"], {"next_earnings": w, "avg_volume": 900_000, **now})
                 for w in ("2000-01-01", "2999-01-01") for now in ({}, {"now": ""}, {"now": None})]
 GUARD_CASES += [(GUARDED, ["DDD", 50, 45, "Medium", "Energy"], {"next_earnings": NOW, "avg_volume": v, "now": NOW})
@@ -113,8 +131,17 @@ process.stdin.on('data', (d) => input += d).on('end', () => {
 """
 
 
-def test_the_guardrails_match_the_python():
-    r = subprocess.run([NODE, "-e", GUARD_DRIVER, str(CORE)], input=json.dumps(GUARD_CASES), capture_output=True, text=True, timeout=60)
+# A time with no zone is UTC, so the verdicts must not depend on the machine's zone. CI runs in UTC, where a local-time
+# misread is invisible, so each run also sets the zone Node believes it is in (as TZ does on Linux; on Windows only
+# process.env.TZ set inside the process takes effect).
+ZONES = ("UTC", "America/Los_Angeles", "Asia/Tokyo")
+in_zone = lambda zone: f"process.env.TZ = {json.dumps(zone)};\n"
+
+
+@pytest.mark.parametrize("zone", ZONES)
+def test_the_guardrails_match_the_python(zone):
+    r = subprocess.run([NODE, "-e", in_zone(zone) + GUARD_DRIVER, str(CORE)], input=json.dumps(GUARD_CASES), capture_output=True, text=True,
+                       env={**os.environ, "TZ": zone}, timeout=60)
     assert r.returncode == 0, r.stderr
     got_all = json.loads(r.stdout)
     assert len(got_all) == len(GUARD_CASES)
@@ -127,6 +154,56 @@ def test_the_guardrails_match_the_python():
             continue
         for key in ("shares", "binding_rule", "limits_in_shares", "warnings"):
             assert got[key] == want[key], (opts, key, got[key], want[key])
+
+
+# portfolio._when itself, to the microsecond, on every form the doc comment on when() names and some it must refuse. Only forms
+# Python 3.12 and 3.14 read alike are here (3.12 alone reads "11.5" as a fraction of an hour, 3.14 alone reads "24:00").
+WHEN_FORMS = WHEN + [
+    "2026-10-09Z", "2026-10-09+05:30", "2026-W41-5", "2026W415", "2026-W41", "2026W41", "2026-W53-7", "2020-W53-7", "2025-W53",
+    "2026-W00", "2026-W54", "2026-W41-0", "2026-W41-8", "2026-W415", "2026W41-5", "2026-W41-5T11:00", "2026-W41-1100", "2026-W41-11100", "2026-W41-1T1100",
+    "2026W41T11:00:00+0100", "0001-W01-1", "0001-W01-1T00:00+01:00", "9999-W52-7", "9999-W52-7T23:59-23:59", "0000-W01",
+    "2026-10-09T11:00:00+05:30:15", "2026-10-09T11:00:00+053015", "2026-10-09T11:00:00-05:30:15", "2026-10-09T11:00+05:60",
+    "2026-10-09T11:00+05:30:60", "2026-10-09T11:00+23:59:59", "2026-10-09T11:00+23:59:60", "2026-10-09T11:00+24:00", "2026-10-09T11:00:00+05:30:1",
+    "2026-10-09T11:00:00.+00", "2026-10-09T11:00:00,+00", "2026-10-09T11:00.+00", "2026-10-09T11.+00", "2026-10-09T11:00:00.Z",
+    "2026-10-09T11:00:00.5,+00", "2026-10-09T11:00:00.", "2026-10-09T11:00:00,", "2026-10-09T11:00:00.5.", "2026-10-09T11:00:00+",
+    "2026-10-09T11:00:00.1234567", "2026-10-09T11:00:00.123456789+01:00", "2026-10-09T11:00:00.5", "2026-10-09T11:00:00,5",
+    "2024-02-29", "2026-02-29", "2100-02-29", "2000-02-29", "2026-00-10", "2026-10-00", "2026-13-01", "0001-01-01", "9999-12-31T23:59:59.999999",
+    "2026-10-09T23:59:60", "2026-10-09T-01:00", "2026-10-09 +01:00", "2026-10-09T11:00:00ZZ", "２０２６-10-09", "2026-10-09\n",
+]
+# Forms that a Python version reads but the browser refuses on purpose (the two versions disagree, or the form is a quirk
+# of the parser), so a guess would be silent. A refusal is a failed check in the page, never a guess.
+WHEN_REFUSED = ["2026-10-09T11.5", "2026-10-09T11:00.5", "2026-10-09T24:00", "2026-10-09T24:00:00", "2026-10-09T11:00:00+05:30:15.5", "2026-10-09T11:00:00+00:00:00.5",
+                "2024-02-291100+00", "2026W411100"]
+WHEN_DRIVER = """
+const core = require(process.argv[1]);
+let input = '';
+process.stdin.on('data', (d) => input += d).on('end', () => {
+  process.stdout.write(JSON.stringify(JSON.parse(input).map((v) => { try { return core.when(v, 'x'); } catch (e) { return { error: e.message }; } })));
+});
+"""
+
+
+@pytest.mark.parametrize("zone", ZONES)
+def test_when_reads_the_forms_python_reads_to_the_microsecond(zone):
+    forms = WHEN_FORMS + WHEN_REFUSED
+    r = subprocess.run([NODE, "-e", in_zone(zone) + WHEN_DRIVER, str(CORE)], input=json.dumps(forms), capture_output=True, text=True,
+                       encoding="utf-8", env={**os.environ, "TZ": zone}, timeout=60)
+    assert r.returncode == 0, r.stderr
+    got_all = json.loads(r.stdout)
+    assert len(got_all) == len(forms)
+    epoch, accepted = dt.datetime(1970, 1, 1, tzinfo=dt.timezone.utc), 0
+    for form, got in zip(forms, got_all):
+        if form in WHEN_REFUSED:
+            assert got == {"error": "x must be an ISO date or date-time"}, (form, got)
+            continue
+        try:
+            want = (portfolio._when(form, "x") - epoch) / dt.timedelta(microseconds=1) / 1000
+        except portfolio.PortfolioError as e:
+            assert got == {"error": str(e)}, (form, got)
+            continue
+        accepted += 1
+        assert not isinstance(got, dict) and abs(got - want) < 1e-3, (form, got, want)
+    assert 40 < accepted < len(forms) - 15       # both sides of the line are exercised
 
 
 def broken_blocks():
@@ -244,6 +321,9 @@ def broken_blocks():
     prior = {"source": "S-1", "as_of": "2025-06-30", "period": "LTM to 2025-06-30"}
     for v, flags in ((200_000_000, []), (200_000_000, ["outlier"]), (1_000_000_000, []), (0, []), (-5, [])):
         yield edit(lambda k, v=v, flags=flags: (k["inputs"].update(revenue_prior={**prior, "value": v}), k.update(flags=flags)))
+    # the expected return in the rating check's detail is str() of the number as written: 24.0 stays 24.0
+    for er in (24.0, 24, 24.5, -0.0, 0.0, 1e16, 1.5e-05, 10**21, -11.43):
+        yield edit(lambda k, er=er: k["scenarios"].update(expected_return_pct=er))
     # an expected loss: no Overweight, whatever the conviction
     yield edit(lambda k: k["scenarios"].update(reference_price=70, expected_return_pct=-11.43))
     yield edit(lambda k: (k["scenarios"].update(reference_price=70, expected_return_pct=-11.43), k.update(rating="Underweight")))
@@ -285,7 +365,7 @@ def test_sizing_matches_the_python_to_the_cent():
         if "error" in want:
             assert got == want, (args, got)                 # the same refusal, word for word
             continue
-        for key in ("shares", "binding_rule", "limits_in_shares"):
+        for key in ("symbol", "conviction", "shares", "binding_rule", "limits_in_shares", "warnings"):
             assert got[key] == want[key], (args, key, got[key], want[key])
         for key in ("cost", "risk_budget", "loss_at_stop", "weight_after_pct", "cash_after"):
             assert abs(got[key] - want[key]) <= 0.011, (args, key, got[key], want[key])
@@ -370,7 +450,12 @@ def all_memos():
             memo_with(BLOCK) + "\n```json\n{oops\n```"]           # a stray invalid snippet does not hide the real block
 
 
-TYPED = {"inputs is an object", "outputs is an object", "subject is an object"}    # their detail is the type's name
+# The parity contract for a check is its name and whether it passed. The demo also gives a detail for these, and for these
+# only, word for word as the Python writes it: the type's name, the rating as written, the rating rule's "expected return
+# ... -> ...; block says ..." line, and the stale price's age. The page leaves every other detail blank, and the Python's
+# wording for those (recomputed figures, the scenarios as JSON) is not part of it.
+TYPED = {"inputs is an object", "outputs is an object", "subject is an object"}
+DETAILED = TYPED | {"rating is one of the four", "rating follows the thresholds", "stale price is flagged"}
 
 
 def assert_memos_match(memos, js):
@@ -379,7 +464,7 @@ def assert_memos_match(memos, js):
         py = verify.check_memo(memo)
         got, want = [[name, ok] for name, ok, _ in got_full], [[name, ok] for name, ok, _ in py]
         assert got == want, (memo[:80], [x for x in got if x not in want], [x for x in want if x not in got])
-        assert [d for n, _, d in got_full if n in TYPED] == [d for n, _, d in py if n in TYPED], memo[:80]
+        assert [d for n, _, d in got_full if n in DETAILED] == [d for n, _, d in py if n in DETAILED], memo[:80]
 
 
 def test_every_memo_check_matches_the_python():
@@ -393,6 +478,19 @@ OLD_BROWSER = """
 const parse = JSON.parse;
 JSON.parse = function (text, reviver) { return reviver ? parse(text, function (k, v) { return reviver.call(this, k, v); }) : parse(text); };
 """
+
+
+def test_a_number_nobody_tagged_is_named_by_its_value():
+    # check() called directly, not through a parsed memo: there is no record of how 2.5 or 24 was written, so a
+    # non-integer is a float and an integer an int (the Python's own type names), and str() of 24 is 24
+    out = json.loads(subprocess.run([NODE, "-e", """
+const core = require(process.argv[1]);
+const k = { inputs: 2.5, outputs: 7, subject: 0.5, rating: "Overweight", conviction: "High",
+            scenarios: { bull: { value: 80, prob: 30 }, base: { value: 62, prob: 50 }, bear: { value: 35, prob: 20 }, reference_price: 50, expected_return_pct: 24.5 } };
+process.stdout.write(JSON.stringify(core.check(k)));""", str(CORE)], capture_output=True, text=True, encoding="utf-8", timeout=60).stdout)
+    details = {name: detail for name, _, detail in out}
+    assert [details[n] for n in ("inputs is an object", "outputs is an object", "subject is an object")] == ["float", "int", "float"]
+    assert details["rating follows the thresholds"] == "expected return 24.5%, conviction High -> Overweight; block says Overweight"
 
 
 def test_the_checks_do_not_need_the_reviver_source_text():
@@ -478,6 +576,7 @@ process.stdin.on('data', (d) => input += d).on('end', () => {
   for (const key of Object.keys(core.TRADE_SORTS)) for (const dir of ['best', 'worst'])
     out.sorts[key + ':' + dir] = core.sortTrades(rows, key, dir).map((r) => r.symbol);
   try { core.sortTrades(rows, 'nonsense'); } catch (e) { out.bad = e.message; }
+  out.inherited = ['toString', 'constructor', '__proto__'].map((k) => { try { core.sortTrades(rows, k); return 'sorted'; } catch (e) { return e.message; } });
   process.stdout.write(JSON.stringify(out));
 });
 """
@@ -540,6 +639,7 @@ def test_trade_options_sort_best_first_with_blanks_last():
     by_rating = out["sorts"]["rating:best"]
     assert [rank[rows[s]["rating"]] for s in by_rating] == sorted((rank[rows[s]["rating"]] for s in by_rating), reverse=True)
     assert "unknown sort" in out["bad"]
+    assert [m.split(":")[0] for m in out["inherited"]] == ["unknown sort"] * 3      # a name Object.prototype has is not a measure
 
 
 # ----------------------------------------------------------------------------- the page's own use (JS only)

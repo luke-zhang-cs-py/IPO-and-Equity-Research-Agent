@@ -2,7 +2,7 @@
 
     python scripts/js_coverage.py                  # runs the Node tests with NODE_V8_COVERAGE set, then reports
     python scripts/js_coverage.py DIR              # reports on raw V8 coverage already written to DIR
-    python scripts/js_coverage.py --fail-under 95  # exits 1 if any file's lines, functions or branches are under 95%
+    python scripts/js_coverage.py --fail-under 100  # exits 1 if any file's lines, functions or branches are under 100%
 
 Node writes V8's raw block coverage to NODE_V8_COVERAGE for every process it starts (the tests spawn Node, and the
 variable reaches it through the inherited environment). This reads those files the way c8 does:
@@ -60,21 +60,25 @@ def collect(cov_dir):
     wanted = {p.resolve() for p in APP.glob("*.js")}
     files = {p: [None, {}, set()] for p in wanted}
     for name in sorted(glob.glob(os.path.join(cov_dir, "*.json"))):
-        with open(name, encoding="utf-8") as fh:
-            for entry in json.load(fh)["result"]:
-                path = script_path(entry["url"])
-                if path not in wanted:
-                    continue
-                length = len(utf16_text(path)[1])
-                counts, funcs, blocks = files[path]
-                one = process_counts(entry["functions"], length)
-                files[path][0] = one if counts is None else [a + b for a, b in zip(counts, one)]
-                for f in entry["functions"]:
-                    first = f["ranges"][0]
-                    if not (first["startOffset"] == 0 and first["endOffset"] >= length):   # the module wrapper
-                        funcs[(first["startOffset"], first["endOffset"])] = f["functionName"] or "(anonymous)"
-                    if f["isBlockCoverage"]:
-                        blocks.update((r["startOffset"], r["endOffset"]) for r in f["ranges"][1:])
+        try:
+            with open(name, encoding="utf-8-sig") as fh:        # -sig: a file a Windows shell wrote starts with a BOM
+                result = json.load(fh)["result"]
+        except (ValueError, KeyError) as e:                    # a process killed mid-write leaves half a file
+            sys.exit(f"cannot read the V8 coverage file {name}: {e!r}")
+        for entry in result:
+            path = script_path(entry["url"])
+            if path not in wanted:
+                continue
+            length = len(utf16_text(path)[1])
+            counts, funcs, blocks = files[path]
+            one = process_counts(entry["functions"], length)
+            files[path][0] = one if counts is None else [a + b for a, b in zip(counts, one)]
+            for f in entry["functions"]:
+                first = f["ranges"][0]
+                if not (first["startOffset"] == 0 and first["endOffset"] >= length):   # the module wrapper
+                    funcs[(first["startOffset"], first["endOffset"])] = f["functionName"] or "(anonymous)"
+                if f["isBlockCoverage"]:
+                    blocks.update((r["startOffset"], r["endOffset"]) for r in f["ranges"][1:])
     return files
 
 
@@ -83,7 +87,11 @@ def report(path, counts, funcs, blocks):
     text, index = utf16_text(path)
     if counts is None:                                  # never loaded
         counts = [0] * len(index)
-    line_of = [text.count("\n", 0, index[o]) + 1 for o in range(len(index))] if index else []
+    line_of = [text.count("\n", 0, index[o]) + 1 for o in range(len(index))] or [1]
+
+    def line_at(o):                                     # a range can start at the very end of the file: the last line
+        return line_of[min(o, len(line_of) - 1)]
+
     by_char = {}
     for o, c in enumerate(counts):
         by_char[index[o]] = max(by_char.get(index[o], 0), c)
@@ -101,8 +109,8 @@ def report(path, counts, funcs, blocks):
     def ran(s, e):
         return any(c > 0 for c in counts[s:e])
 
-    missed_funcs = [f"{name} (line {line_of[s]})" for (s, e), name in sorted(funcs.items()) if counts[s] <= 0]
-    missed_blocks = sorted({line_of[s] for s, e in blocks if not ran(s, e)})
+    missed_funcs = [f"{name} (line {line_at(s)})" for (s, e), name in sorted(funcs.items()) if not ran(s, s + 1)]
+    missed_blocks = sorted({line_at(s) for s, e in blocks if not ran(s, e)})
     hit_blocks = sum(1 for s, e in blocks if ran(s, e))
     return {"lines": (lines - len(missed_lines), lines), "functions": (len(funcs) - len(missed_funcs), len(funcs)),
             "branches": (hit_blocks, len(blocks)), "missed_lines": missed_lines, "missed_functions": missed_funcs,
