@@ -1,6 +1,6 @@
 # Bot health
 
-Run `20261010T115905Z-weekly-0fae17` at 2026-10-10T11:59:05Z, data through the 2026-10-09 session. **Status: degraded.**
+Run `20261012T032339Z-edgar-447c42` at 2026-10-12T03:23:39Z, data through the 2026-10-09 session. **Status: degraded.**
 
 ## Coverage
 
@@ -15,10 +15,11 @@ Run `20261010T115905Z-weekly-0fae17` at 2026-10-10T11:59:05Z, data through the 2
 
 - missing_days: 1
 - moves: 12
+- staleness: 1
 
 ## Sources this run
 
-- every source answered
+- edgar_skipped: reason=SEC_USER_AGENT is not set; EDGAR asks every caller for "Name email"
 
 ## IPO pipeline
 
