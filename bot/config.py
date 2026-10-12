@@ -44,7 +44,7 @@ class Settings:
     symbols: Optional[Tuple[str, ...]] = None  # None: the S&P 500
     tracking_dir: Optional[pathlib.Path] = None  # committed JSONL ledgers (None: data_dir/tracking)
     reports_dir: Optional[pathlib.Path] = None  # committed health and backtest reports (None: data_dir/reports)
-    user_agent: str = "ipo-bot/1.0 (+https://github.com/luke-zhang-cs-py/ipo-bot)"
+    user_agent: str = "ipo-bot/1.0 (+https://github.com/luke-zhang-cs-py/IPO-and-Equity-Research-Agent)"
     # sources: requests a second per host (SEC's published limit is 10; Yahoo and Nasdaq publish none)
     rate_limits: Mapping[str, float] = field(
         default_factory=lambda: {"www.sec.gov": 8.0, "efts.sec.gov": 8.0, "data.sec.gov": 8.0}

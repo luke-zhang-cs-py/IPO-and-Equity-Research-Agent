@@ -1,12 +1,12 @@
 # IPO bot
 
-[![tests](https://github.com/luke-zhang-cs-py/ipo-bot/actions/workflows/tests.yml/badge.svg)](https://github.com/luke-zhang-cs-py/ipo-bot/actions/workflows/tests.yml)
+[![tests](https://github.com/luke-zhang-cs-py/IPO-and-Equity-Research-Agent/actions/workflows/tests.yml/badge.svg)](https://github.com/luke-zhang-cs-py/IPO-and-Equity-Research-Agent/actions/workflows/tests.yml)
 [![Python](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/)
 [![Claude](https://img.shields.io/badge/Claude-Opus%205.5-0F766E.svg)](https://docs.anthropic.com/)
 
 IPO and stock research on Claude that answers in one page, then lets code **check every number in it**.
 
-### ▶ [Project a stock, size a trade, check a memo →](https://luke-zhang-cs-py.github.io/ipo-bot/app/)
+### ▶ [Project a stock, size a trade, check a memo →](https://luke-zhang-cs-py.github.io/IPO-and-Equity-Research-Agent/app/)
 Runs in your browser: every NYSE ticker the SEC lists, searchable by ticker, company or sector; a memo's bull, base
 and bear cases drawn as a price projection (2,000 simulated paths that average out at the probability-weighted value);
 a table of trade ideas you can sort by expected return, reward to risk, chance of hitting the stop or shares allowed;
@@ -14,7 +14,7 @@ and the bot's own sizing rules and memo checks, ported from the Python and teste
 
 ![A price projection with bull, base and bear paths and 10-90% bands, then sizing a purchase as the stop-working price moves, then the memo checker catching a rating the numbers don't support](docs/demo.gif)
 
-**[Read the write-up →](https://luke-zhang-cs-py.github.io/ipo-bot/)** — what a memo contains, why its numbers can be
+**[Read the write-up →](https://luke-zhang-cs-py.github.io/IPO-and-Equity-Research-Agent/)** — what a memo contains, why its numbers can be
 trusted, and what an honest benchmark found.
 
 ## Two parts
