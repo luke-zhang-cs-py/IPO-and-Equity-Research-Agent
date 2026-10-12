@@ -1,12 +1,12 @@
 # Bot health
 
-Run `20261012T135633Z-edgar-ec12e6` at 2026-10-12T13:56:33Z, data through the 2026-10-09 session. **Status: degraded.**
+Run `20261012T221935Z-edgar-b190a2` at 2026-10-12T22:19:35Z, data through the 2026-10-12 session. **Status: failing.**
 
 ## Coverage
 
-- Universe: 503 symbols; 503 with prices; 503 current.
+- Universe: 503 symbols; 503 with prices; 470 current.
 - Missing tickers (no prices at all): none
-- Stale: none
+- Stale: VRSK, VRSN, VRT, VRTX, VST, VTR, VTRS, VYLR, VZ, WAB, WAT, WDAY, WDC, WEC, WELL, WFC, WM, WMB, WMT, WRB, WSM, WST, WTW, WY, WYNN
 - Missing trading days inside histories: 1 days over 1 symbols
 - Missing fields in the last year of bars: volume 1
 - Delisted symbols kept: 0; membership history recorded from 2026-10-09T01:51:19Z (earlier backtests use the membership seen then).
@@ -15,7 +15,30 @@ Run `20261012T135633Z-edgar-ec12e6` at 2026-10-12T13:56:33Z, data through the 20
 
 - missing_days: 1
 - moves: 12
-- staleness: 1
+- staleness: 34
+
+Errors (first 20):
+
+- staleness VRSK: newest bar 2026-10-08, 2 trading days behind 2026-10-12
+- staleness VRSN: newest bar 2026-10-08, 2 trading days behind 2026-10-12
+- staleness VRT: newest bar 2026-10-08, 2 trading days behind 2026-10-12
+- staleness VRTX: newest bar 2026-10-08, 2 trading days behind 2026-10-12
+- staleness VST: newest bar 2026-10-08, 2 trading days behind 2026-10-12
+- staleness VTR: newest bar 2026-10-08, 2 trading days behind 2026-10-12
+- staleness VTRS: newest bar 2026-10-08, 2 trading days behind 2026-10-12
+- staleness VYLR: newest bar 2026-10-08, 2 trading days behind 2026-10-12
+- staleness VZ: newest bar 2026-10-08, 2 trading days behind 2026-10-12
+- staleness WAB: newest bar 2026-10-08, 2 trading days behind 2026-10-12
+- staleness WAT: newest bar 2026-10-08, 2 trading days behind 2026-10-12
+- staleness WDAY: newest bar 2026-10-08, 2 trading days behind 2026-10-12
+- staleness WDC: newest bar 2026-10-08, 2 trading days behind 2026-10-12
+- staleness WEC: newest bar 2026-10-08, 2 trading days behind 2026-10-12
+- staleness WELL: newest bar 2026-10-08, 2 trading days behind 2026-10-12
+- staleness WFC: newest bar 2026-10-08, 2 trading days behind 2026-10-12
+- staleness WM: newest bar 2026-10-08, 2 trading days behind 2026-10-12
+- staleness WMB: newest bar 2026-10-08, 2 trading days behind 2026-10-12
+- staleness WMT: newest bar 2026-10-08, 2 trading days behind 2026-10-12
+- staleness WRB: newest bar 2026-10-08, 2 trading days behind 2026-10-12
 
 ## Sources this run
 
