@@ -54,7 +54,8 @@ def own_rating(memo):
 
 
 def build_request(memo, sources):
-    mech = verify.check_memo(memo)
+    # with the sources, the identity is also checked against the SEC's own records (verify.check_identity)
+    mech = verify.check_memo_with_sources(memo, sources)
     rating = own_rating(memo)
     if (len(mech) == 1 and not mech[0][1] and mech[0][2].startswith(NO_BLOCK)
             and (rating == "NOT RATED" or (rating is None and checks.says_unknown(memo)))):

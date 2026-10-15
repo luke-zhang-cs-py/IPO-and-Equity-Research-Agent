@@ -185,10 +185,12 @@ def test_financials_filed_after_the_date_are_dropped(monkeypatch, backtest):
     facts = {"facts": {"us-gaap": {"Revenues": {"units": {"USD": [
         {"start": "2026-01-01", "end": "2026-03-31", "val": 10, "form": "S-1/A", "filed": "2026-07-20"},
         {"start": "2026-04-01", "end": "2026-06-30", "val": 12, "form": "10-Q", "filed": "2026-08-10"}]}}}}}
-    get, _ = fake_get({"companyfacts": facts})
+    later = {"filings": {"recent": {"form": ["10-Q"], "filingDate": ["2026-08-10"], "accessionNumber": ["0001-26-9"]}}}
+    get, _ = fake_get({"companyfacts": facts, "submissions": later})
     monkeypatch.setattr(tools, "_get", get)
-    rows = json.loads(tools.edgar_financials("1", ["Revenues"]))["data"]["Revenues (USD)"]
-    assert [r["value"] for r in rows] == [10]
+    out = json.loads(tools.edgar_financials("1", ["Revenues"]))
+    assert [r["value"] for r in out["data"]["Revenues (USD)"]] == [10]
+    assert "STALE" not in out.get("note", ""), "a report filed after the backtest date is not news on the day"
 
 
 def test_market_and_macro_data_stop_at_the_date(monkeypatch, backtest):
@@ -271,10 +273,15 @@ def test_the_auditor_call_uses_a_json_schema_and_sees_the_sources():
             return NS(stop_reason="end_turn", content=[NS(type="text", text=json.dumps(good))])
 
     client = NS(messages=NS(stream=lambda **kw: Stream(**kw)))
-    out = audit.audit(memo_with(BLOCK), [{"tool": "calculate", "result": "6"}], client=client)
+    sec = {"tool": "edgar_lookup", "error": False,
+           "result": json.dumps({"data": [{"cik": "1", "ticker": "EXM", "name": "Example Corp", "exchange": "NYSE"}]})}
+    out = audit.audit(memo_with(BLOCK), [{"tool": "calculate", "result": "6"}, sec], client=client)
     assert out["verdict"] == "pass"
     assert seen["output_config"]["format"]["type"] == "json_schema"
-    assert "SOURCES (1 tool results)" in seen["messages"][0]["content"]
+    assert "SOURCES (2 tool results)" in seen["messages"][0]["content"]
+    assert "PASS identity: exchange is the one the SEC lists" in seen["messages"][0]["content"]
+    out = audit.audit(memo_with(BLOCK), [{"tool": "calculate", "result": "6"}], client=client)
+    assert out["verdict"] == "fail", "with no SEC record among the sources, the identity can't be confirmed"
 
 
 # ----------------------------------------------------------------------------- live tracking

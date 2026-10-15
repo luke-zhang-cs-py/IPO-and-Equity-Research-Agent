@@ -3,6 +3,10 @@
     python src/verify.py memos/2026-10-06_101500.md      check one saved memo
     python src/verify.py memo.md --json                   the results as JSON
 
+With the memo's saved sources beside it (memos/X.sources.json, written by ipo_bot.py), the subject is also
+checked against the SEC's own records: the ticker is one the SEC lists, the exchange is the one it lists the
+ticker on, and any listing or delisting filing in the last year is flagged.
+
 The block is the JSON the system prompt asks for at the end of every full assessment (ACCURACY CHECKS 11).
 Every check prints PASS or FAIL with the numbers it compared. Exit code 1 if anything fails.
 These checks are mechanical: a block can pass and the analysis still be wrong. They catch arithmetic that
@@ -12,6 +16,7 @@ stale data nobody flagged.
 import datetime as dt
 import json
 import math
+import pathlib
 import re
 import sys
 
@@ -316,6 +321,98 @@ def check_memo(memo):
     return [("KEY NUMBERS block present and valid", True, "")] + check(k)
 
 
+# ----------------------------------------------------------------------------- identity against the SEC's records
+#
+# check() can only see the memo, so it checks that an identity is *given*. With the tool results the memo was
+# written from, these checks confirm that it is *right*: the ticker is one the SEC lists for the company, the
+# exchange is the one the SEC lists it on, and any listing or delisting filing in the last year is flagged.
+
+SEC_IDENTITY_TOOLS = ("edgar_lookup", "edgar_listing", "edgar_filings")
+EXCHANGE_NAMES = {"NEW YORK STOCK EXCHANGE": "NYSE", "NYSE MKT": "NYSE AMERICAN", "AMEX": "NYSE AMERICAN",
+                  "NASDAQ GLOBAL SELECT": "NASDAQ", "NASDAQ GLOBAL MARKET": "NASDAQ", "NASDAQ CAPITAL MARKET": "NASDAQ",
+                  "THE NASDAQ STOCK MARKET": "NASDAQ", "CBOE BZX": "CBOE", "BATS": "CBOE"}
+
+
+def _exchange(name):
+    """One spelling per exchange: 'New York Stock Exchange' and 'NYSE' are the same listing."""
+    n = re.sub(r"\s+", " ", str(name or "").upper()).strip()
+    return EXCHANGE_NAMES.get(n, n)
+
+
+def _ticker(t):
+    """BRK.B, BRK-B and BRK/B are one share class written three ways."""
+    return re.sub(r"[.\-/ ]", "", str(t or "").upper())
+
+
+def _sec_results(sources, tools):
+    """(tool, data) for every readable, successful result from these tools. A result cut short when it was
+    saved is not readable JSON and is skipped, never guessed at."""
+    for s in sources or []:
+        if not isinstance(s, dict) or s.get("tool") not in tools or s.get("error"):
+            continue
+        try:
+            data = json.loads(s.get("result") or "")
+        except json.JSONDecodeError:
+            continue
+        if isinstance(data, dict):
+            yield s["tool"], data.get("data")
+
+
+def _sec_records(sources):
+    """[(tickers, exchanges)], one per company record among the sources."""
+    records = []
+    for tool, data in _sec_results(sources, SEC_IDENTITY_TOOLS):
+        if tool == "edgar_lookup" and isinstance(data, list):
+            records += [([r.get("ticker")], [r.get("exchange")]) for r in data if isinstance(r, dict)]
+        elif isinstance(data, dict):
+            records.append((data.get("tickers") or [], data.get("exchanges") or []))
+    return records
+
+
+def check_identity(k, sources):
+    """[(name, passed, detail)]: the memo's subject against the SEC records among its sources."""
+    subj = k.get("subject") if isinstance(k.get("subject"), dict) else {}
+    ticker, exchange = _ticker(subj.get("ticker")), _exchange(subj.get("exchange"))
+    records = _sec_records(sources)
+    if not records:
+        return [("identity checked against an SEC record", False,
+                 "no edgar_lookup, edgar_listing or edgar_filings result among the sources")]
+    out = []
+    mine = [(ts, exs) for ts, exs in records if ticker and ticker in {_ticker(t) for t in ts}]
+    if not mine and subj.get("type") == "ipo":
+        out.append(("identity: ticker is one the SEC lists", True,
+                    "an IPO's ticker is not in the SEC's lists until it trades"))
+    else:
+        out.append(("identity: ticker is one the SEC lists", bool(mine),
+                    f"memo {subj.get('ticker')!r}; SEC {sorted({str(t) for ts, _ in records for t in ts if t})}"))
+    if mine:
+        listed = {_exchange(e) for _, exs in mine for e in exs if e}
+        out.append(("identity: exchange is the one the SEC lists", exchange in listed,
+                    f"memo {subj.get('exchange')!r}; SEC {sorted(listed)}"))
+    events = [e for _, data in _sec_results(sources, ("edgar_listing",)) if isinstance(data, dict)
+              for e in data.get("listing_events") or [] if isinstance(e, dict)]
+    if events:
+        flags = " ".join(str(f) for f in _as_list(k.get("flags"))).lower()
+        out.append(("listing or delisting filings in the last year are flagged", "listing" in flags,
+                    ", ".join(f"{e.get('form')} filed {e.get('filed')}" for e in events)))
+    return out
+
+
+def check_memo_with_sources(memo, sources):
+    """check_memo, plus the identity checks when the memo has a block and its sources are known."""
+    rows = check_memo(memo)
+    if rows[0][1] and sources is not None:
+        rows += check_identity(extract(memo), sources)
+    return rows
+
+
+def _sources_beside(path):
+    """The tool results ipo_bot.save wrote next to a memo (memos/X.md -> memos/X.sources.json), or None."""
+    p = pathlib.Path(path)
+    beside = p.with_name(p.stem + ".sources.json")
+    return json.loads(beside.read_text(encoding="utf-8")) if beside.exists() else None
+
+
 def main(argv):
     common.utf8_console()
     paths = [a for a in argv if not a.startswith("--")]
@@ -324,7 +421,7 @@ def main(argv):
     bad = 0
     for path in paths:
         with open(path, encoding="utf-8") as f:
-            results = check_memo(f.read())
+            results = check_memo_with_sources(f.read(), _sources_beside(path))
         bad += sum(not ok for _, ok, _ in results)
         if "--json" in argv:
             print(json.dumps([{"check": n, "pass": ok, "detail": d} for n, ok, d in results], indent=1))

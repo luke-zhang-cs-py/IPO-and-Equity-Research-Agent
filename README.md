@@ -39,6 +39,15 @@ question -> Claude + tools (SEC EDGAR, XBRL, FRED, market data, web, calculator)
   primary filing, scenario consistency, citations, and "unknown" instead of a guess.
 - **KEY NUMBERS:** every memo ends with a JSON block that `verify.py` recomputes: market cap, EV, multiples, the
   scenario maths and the rating thresholds. A second model call (`audit.py`) audits the memo against its sources.
+- **Identity from the SEC's own records:** `edgar_listing` gives a company's tickers, exchanges and former names,
+  its listing and delisting filings of the last 12 months (Form 25 and 25-NSE, 15, 8-A, 8-K item 3.01), and for a
+  foreign filer the filings that state its ADR ratio. With a memo's saved sources, `verify.py` checks that the
+  ticker and exchange it gives are the ones the SEC lists, and that any listing event is flagged.
+- **Proof trace:** `proof.py` re-reads every SEC-sourced figure of a memo or a draft from the SEC's XBRL data and
+  compares it exactly: one line per figure with the draft value, the official value, the filing (form, date,
+  accession) and its link. Any difference is a failure, and so is a figure the SEC doesn't report (EBITDA).
+  Every figure from `edgar_financials` names the filing it came from, and a STALE note says when a newer report
+  is on file than the figures the SEC has processed.
 - **Portfolio mode:** with your holdings and rules loaded, it decides buy, add, hold, trim or sell, but the size comes
   from the smallest of the limits in your own file: risk per trade, position, sector and cash, plus optional guardrails
   (order value, gross exposure, daily loss, drawdown, earnings blackout, volume, a kill switch).
@@ -96,6 +105,8 @@ pip install -r requirements.txt
 python src/ipo_bot.py "Rate the <company> IPO"
 python src/ipo_bot.py --portfolio portfolio.json         # review your holdings by your own rules
 python src/ipo_bot.py --audit "Rate <ticker>"            # plus a second-pass audit
+python src/proof.py draft.json                           # a draft's figures against the SEC, to the cent (no key)
+python src/proof.py --memo memos/<file>.md               # the same for a memo's KEY NUMBERS
 python src/paper.py run signals.json --portfolio portfolio.json [--alpaca]   # paper trading; then: report
 
 # the keyless bot (no keys)
@@ -111,7 +122,7 @@ python evaluation/tracker.py                             # the paper bot against
 ## Tests
 
 ```bash
-python -m pytest -q tests evaluation/harness   # 738 offline tests, free: 545 for the research code (22 need Node:
+python -m pytest -q tests evaluation/harness   # 768 offline tests, free: 575 for the research code (22 need Node:
                                               # the browser demo against the Python: every check's name and verdict
                                               # and the few details the demo shows, sizing, earnings dates) and 193
                                               # for the keyless bot;

@@ -17,6 +17,8 @@ A1 Math with a tool: every computed figure in the memo (market cap, EV, multiple
    scenario values, PWV) has a matching calculate result in SOURCES, or its formula and inputs are shown.
 A2 Identity: company name, ticker, exchange and share class are stated and match across the sources used
    (watch GOOG/GOOGL, BRK.A/BRK.B, ADRs vs home listings, similarly named companies).
+   The exchange is one an SEC record in SOURCES (edgar_lookup, edgar_listing) lists the ticker on; any listing
+   or delisting filing edgar_listing returned is flagged "LISTING:"; an ADR states its ratio from a filing.
 A3 Freshness: every figure has an as-of date; a price more than one trading day old, financials older than
    the latest quarterly filing in SOURCES, or IPO terms not from the latest amended prospectus in SOURCES are
    marked STALE.

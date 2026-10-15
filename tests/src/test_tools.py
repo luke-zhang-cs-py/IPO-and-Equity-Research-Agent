@@ -142,12 +142,12 @@ def test_edgar_needs_a_user_agent_with_an_email_and_a_real_cik(monkeypatch):
 
 def test_edgar_lookup_puts_the_exact_ticker_first_and_says_when_nothing_matched(monkeypatch):
     monkeypatch.setenv("SEC_USER_AGENT", UA)
-    rows = {"0": {"cik_str": 1, "ticker": "ABCX", "title": "Abc Holdings"},
-            "1": {"cik_str": 2, "ticker": "ABC", "title": "Other Corp"},
-            "2": {"cik_str": 3, "ticker": "ZZZ", "title": "Abc Zed"}}
-    calls = fake_get(monkeypatch, {"company_tickers": rows})
+    rows = {"fields": ["cik", "name", "ticker", "exchange"],
+            "data": [[1, "Abc Holdings", "ABCX", "Nasdaq"], [2, "Other Corp", "ABC", "NYSE"], [3, "Abc Zed", "ZZZ", None]]}
+    calls = fake_get(monkeypatch, {"company_tickers_exchange": rows})
     out = json.loads(tools.edgar_lookup(" abc "))
     assert [d["ticker"] for d in out["data"]] == ["ABC", "ABCX", "ZZZ"] and "note" not in out
+    assert [d["exchange"] for d in out["data"]] == ["NYSE", "Nasdaq", None]
     assert calls[0][1]["User-Agent"] == UA
     assert "no listed company matched" in json.loads(tools.edgar_lookup("nothing"))["note"]
     with pytest.raises(tools.ToolError, match="give a ticker"):
@@ -201,7 +201,8 @@ def test_edgar_financials_dedupes_periods_honours_the_backtest_and_names_what_is
             {"end": "2026-03-31", "val": 5, "form": "10-Q", "filed": "2026-05-01"},
             {"start": "2026-01-01", "end": "2026-03-31", "val": 3, "form": "10-Q", "filed": "2026-05-01"}]
     fake_get(monkeypatch, {"companyfacts": {"facts": {"us-gaap": {"Revenues": {"units": {"USD": vals}},
-                                                                  "GrossProfit": {"units": {"USD": [vals[1]]}}}}}})
+                                                                  "GrossProfit": {"units": {"USD": [vals[1]]}}}}},
+                           "submissions": {"filings": {"recent": {}}}})
     out = json.loads(tools.edgar_financials("1", concepts=["Revenues", "GrossProfit", "Nope"], periods=2))
     rows = out["data"]["Revenues (USD)"]
     assert [(r["end"], r["period_days"]) for r in rows] == [("2026-03-31", None), ("2026-03-31", 90)]
