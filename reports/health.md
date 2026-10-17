@@ -1,12 +1,12 @@
 # Bot health
 
-Run `20261016T230914Z-edgar-f13b91` at 2026-10-16T23:09:14Z, data through the 2026-10-16 session. **Status: failing.**
+Run `20261017T001326Z-daily-a069bf` at 2026-10-17T00:13:26Z, data through the 2026-10-16 session. **Status: degraded.**
 
 ## Coverage
 
-- Universe: 503 symbols; 503 with prices; 1 current.
+- Universe: 503 symbols; 503 with prices; 503 current.
 - Missing tickers (no prices at all): none
-- Stale: A, AAPL, ABBV, ABNB, ABT, ACGL, ACN, ADBE, ADI, ADM, ADP, ADSK, AEE, AEP, AES, AFL, AIG, AIZ, AJG, AKAM, ALB, ALGN, ALL, ALLE, AMAT
+- Stale: none
 - Missing trading days inside histories: 1 days over 1 symbols
 - Missing fields in the last year of bars: none
 - Delisted symbols kept: 0; membership history recorded from 2026-10-09T01:51:19Z (earlier backtests use the membership seen then).
@@ -15,34 +15,10 @@ Run `20261016T230914Z-edgar-f13b91` at 2026-10-16T23:09:14Z, data through the 20
 
 - missing_days: 1
 - moves: 12
-- staleness: 503
-
-Errors (first 20):
-
-- staleness A: newest bar 2026-10-14, 2 trading days behind 2026-10-16
-- staleness AAPL: newest bar 2026-10-14, 2 trading days behind 2026-10-16
-- staleness ABBV: newest bar 2026-10-14, 2 trading days behind 2026-10-16
-- staleness ABNB: newest bar 2026-10-14, 2 trading days behind 2026-10-16
-- staleness ABT: newest bar 2026-10-14, 2 trading days behind 2026-10-16
-- staleness ACGL: newest bar 2026-10-14, 2 trading days behind 2026-10-16
-- staleness ACN: newest bar 2026-10-14, 2 trading days behind 2026-10-16
-- staleness ADBE: newest bar 2026-10-14, 2 trading days behind 2026-10-16
-- staleness ADI: newest bar 2026-10-14, 2 trading days behind 2026-10-16
-- staleness ADM: newest bar 2026-10-14, 2 trading days behind 2026-10-16
-- staleness ADP: newest bar 2026-10-14, 2 trading days behind 2026-10-16
-- staleness ADSK: newest bar 2026-10-14, 2 trading days behind 2026-10-16
-- staleness AEE: newest bar 2026-10-14, 2 trading days behind 2026-10-16
-- staleness AEP: newest bar 2026-10-14, 2 trading days behind 2026-10-16
-- staleness AES: newest bar 2026-10-14, 2 trading days behind 2026-10-16
-- staleness AFL: newest bar 2026-10-14, 2 trading days behind 2026-10-16
-- staleness AIG: newest bar 2026-10-14, 2 trading days behind 2026-10-16
-- staleness AIZ: newest bar 2026-10-14, 2 trading days behind 2026-10-16
-- staleness AJG: newest bar 2026-10-14, 2 trading days behind 2026-10-16
-- staleness AKAM: newest bar 2026-10-14, 2 trading days behind 2026-10-16
 
 ## Sources this run
 
-- edgar_skipped: reason=SEC_USER_AGENT is not set; EDGAR asks every caller for "Name email"
+- leavers_missing_prices: n=3, symbols=['ABC', 'ANTM', 'BLL']
 
 ## IPO pipeline
 
@@ -52,6 +28,6 @@ Errors (first 20):
 
 ## Live tracking
 
-- stock, 2026-W42: base_rate Brier 0.2478 (n=1510); model Brier 0.2496 (n=1510); random_walk Brier 0.2500 (n=1510)
+- stock, 2026-W42: base_rate Brier 0.2468 (n=2012); model Brier 0.2455 (n=2012); random_walk Brier 0.2500 (n=2012)
 - ipo: no resolved predictions yet
 - stock model stock-2026-10-09-bc9b4b29c3, shrinkage 1
