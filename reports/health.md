@@ -1,6 +1,6 @@
 # Bot health
 
-Run `20261021T023552Z-edgar-29f662` at 2026-10-21T02:35:52Z, data through the 2026-10-20 session. **Status: degraded.**
+Run `20261021T080818Z-edgar-788707` at 2026-10-21T08:08:18Z, data through the 2026-10-20 session. **Status: degraded.**
 
 ## Coverage
 
@@ -15,6 +15,7 @@ Run `20261021T023552Z-edgar-29f662` at 2026-10-21T02:35:52Z, data through the 20
 
 - missing_days: 1
 - moves: 12
+- staleness: 1
 
 ## Sources this run
 
