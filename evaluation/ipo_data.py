@@ -419,5 +419,5 @@ def main(argv):
      else add_initial_ranges() if "--initial-ranges" in argv else build())
 
 
-if __name__ == "__main__":  # pragma: no cover - the command line entry; main() is tested
+if __name__ == "__main__":
     main(sys.argv[1:])

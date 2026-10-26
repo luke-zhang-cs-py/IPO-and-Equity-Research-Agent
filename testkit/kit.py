@@ -604,5 +604,5 @@ def all_passed(result):
     return 0 if result["passed"] == result["total"] else 1
 
 
-if __name__ == "__main__":  # pragma: no cover - runs only as a script; main() itself is tested
+if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))

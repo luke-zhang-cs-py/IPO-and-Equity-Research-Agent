@@ -33,15 +33,17 @@ disallow_untyped_defs = true
 ignore_missing_imports = true
 
 [tool.coverage.run]
-source = ["bot"]
+# Every first-party package. CI measures them in two jobs (bot/ in one; src/, evaluation/, testkit/ and scripts/ in
+# the other), each with --cov-branch --cov-fail-under=100, so the whole repo is held at 100% line and branch.
+source = ["bot", "src", "evaluation", "testkit", "scripts"]
 branch = true
 omit = ["*/test_*.py"]   # the tests themselves are not measured
 
 [tool.coverage.report]
-# the 100% gate is the bot's own (--cov-fail-under=100 in CI), so measuring src/ or evaluation/ does not "fail"
 show_missing = true
 skip_covered = true
-exclude_also = ["if TYPE_CHECKING:", "raise NotImplementedError"]
+# the one exclusion: a script's command-line entry, which only calls main() (tested directly, or through runpy)
+exclude_also = ["if __name__ == .__main__.:"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -182,5 +182,5 @@ def main():
     return e
 
 
-if __name__ == "__main__":  # pragma: no cover - the command line entry; main() is tested
+if __name__ == "__main__":
     main()

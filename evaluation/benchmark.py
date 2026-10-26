@@ -441,5 +441,5 @@ def main(argv):
     return 0
 
 
-if __name__ == "__main__":   # pragma: no cover  (the real run: Yahoo, and caches in the repo)
+if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))

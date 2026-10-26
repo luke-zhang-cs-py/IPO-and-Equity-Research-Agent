@@ -177,3 +177,34 @@ def test_an_empty_file_has_nothing_to_cover(tmp_path, monkeypatch):
 def test_ranges_text_joins_runs():
     assert jc.ranges_text([3, 4, 5, 9, 11, 12]) == "3-5, 9, 11-12" and jc.ranges_text([]) == ""
     assert jc.pct((0, 0)) == 100.0 and jc.script_path("node:internal/x") is None and jc.script_path("") is None
+
+
+def test_run_tests_runs_the_node_tests_with_coverage_switched_on(monkeypatch, tmp_path):
+    seen = []
+
+    def run(cmd, cwd, env):
+        seen.append((cmd, cwd, env))
+        return type("Done", (), {"returncode": seen_code[0]})()
+    seen_code = [0]
+    monkeypatch.setattr(jc.subprocess, "run", run)                # no Node, no second pytest
+    jc.run_tests(str(tmp_path))
+    cmd, cwd, env = seen[0]
+    assert cmd[:6] == [sys.executable, "-B", "-m", "pytest", "-q", "-p"] and cwd == jc.ROOT
+    assert env["NODE_V8_COVERAGE"] == str(tmp_path)               # what every Node process the tests start inherits
+    assert any(c.endswith("test_js_coverage.py") for c in cmd) and all("test_js_" in c for c in cmd[7:])
+    seen_code[0] = 3
+    with pytest.raises(SystemExit) as e:                          # a failing Node test fails the report, with its code
+        jc.run_tests(str(tmp_path))
+    assert e.value.code == 3
+
+
+def test_with_no_directory_the_tests_run_into_a_temporary_one(app, monkeypatch, capsys):
+    dirs = []
+
+    def run_tests(cov_dir):                                       # stands in for Node writing its raw coverage
+        dirs.append(cov_dir)
+        (pathlib.Path(cov_dir) / "a.json").write_text(json.dumps(process(str(app.resolve()), else_count=1, g_count=1)))
+    monkeypatch.setattr(jc, "run_tests", run_tests)
+    jc.main(["--fail-under", "100"])
+    assert "100.0%   6/6" in capsys.readouterr().out
+    assert len(dirs) == 1 and not pathlib.Path(dirs[0]).exists()  # the temporary directory is cleaned up

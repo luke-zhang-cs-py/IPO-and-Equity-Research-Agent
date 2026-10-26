@@ -207,3 +207,13 @@ def test_a_second_look_with_no_holdout_pops_and_a_thinly_priced_sample(small_rep
     assert "Too few holdout IPOs with prices to score." in text
     assert "No test year has prices for 60% of its IPOs." in text
     assert not (tmp_path / "bench_runs" / "ipo_holdout_log.jsonl").exists()
+
+
+def test_the_command_line_passes_its_flags_to_the_report(monkeypatch, tmp_path):
+    calls = []
+    monkeypatch.setattr(E, "report", lambda final, again: calls.append((final, again)) or tmp_path / "r.md")
+    assert E.main([]) == tmp_path / "r.md" and E.main(["--final"]) and E.main(["--final", "--again"])
+    assert calls == [(False, False), (True, False), (True, True)]
+    monkeypatch.setattr(sys, "argv", ["ipo_eval.py", "--again"])                 # no argv: the real command line
+    E.main()
+    assert calls[-1] == (False, True)

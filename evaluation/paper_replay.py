@@ -205,5 +205,5 @@ def main(argv):
     print(f"Saved to {path}; the full log is in forecasts/paper/")
 
 
-if __name__ == "__main__":  # pragma: no cover - the command line entry; main() is tested
+if __name__ == "__main__":
     main(sys.argv[1:])

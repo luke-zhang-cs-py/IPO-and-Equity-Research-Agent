@@ -164,7 +164,7 @@ def last_slot(job: str, now: dt.datetime) -> dt.datetime:
         if t.weekday() in days and t.hour in hours and t <= now:
             return t
         t -= dt.timedelta(hours=1)
-    raise ValueError(f"no slot for {job}")  # pragma: no cover  (every job has weekly slots)
+    raise ValueError(f"no slot for {job}")
 
 
 def missed_runs(store: Store, now: dt.datetime) -> List[Issue]:

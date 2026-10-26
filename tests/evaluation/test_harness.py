@@ -4,6 +4,7 @@ import datetime as dt
 import math
 import pathlib
 import random
+import runpy
 import sys
 
 import numpy as np
@@ -85,6 +86,13 @@ def test_cut_dates_outcomes_and_metrics_at_their_edges():
 def test_the_t_distribution_falls_back_to_the_normal_without_scipy(monkeypatch):
     monkeypatch.setattr(bb, "_sps", None)
     assert bb._t_cdf(0.0, 5) == 0.5 and abs(bb._t_cdf(1.96, 5) - 0.975) < 1e-3
+
+
+def test_without_scipy_the_harness_still_loads(monkeypatch):
+    monkeypatch.setitem(sys.modules, "scipy", None)                     # a bare install: the import fails
+    ns = runpy.run_path(str(ROOT / "evaluation" / "harness" / "bot_benchmark.py"), run_name="bot_benchmark_without_scipy")
+    assert ns["_sps"] is None and ns["_t_cdf"](0.0, 5) == 0.5 and abs(ns["_t_cdf"](1.96, 5) - 0.975) < 1e-3
+    assert bb._sps is not None                                         # the harness the other tests use keeps scipy
 
 
 def test_diebold_mariano_edge_cases():

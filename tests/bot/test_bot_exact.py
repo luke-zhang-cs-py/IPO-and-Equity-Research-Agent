@@ -331,6 +331,12 @@ def test_staleness_boundaries(cfg) -> None:
     assert checks.lag("2025-10-03", D(2025, 10, 8)) == 3
 
 
+def test_a_job_with_no_slot_in_the_week_is_an_error(monkeypatch) -> None:
+    monkeypatch.setitem(checks.SCHEDULE, "never", ((), (), dt.timedelta(hours=1)))  # every real job has weekly slots
+    with pytest.raises(ValueError, match=r"^no slot for never$"):
+        checks.last_slot("never", dt.datetime(2025, 10, 8, tzinfo=UTC))
+
+
 def test_last_slot_and_missed_run_boundaries(store) -> None:
     assert checks.last_slot("daily", dt.datetime(2025, 10, 8, 22, 0, tzinfo=UTC)) == dt.datetime(
         2025, 10, 8, 22, tzinfo=UTC

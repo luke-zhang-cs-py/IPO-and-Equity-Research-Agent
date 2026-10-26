@@ -21,11 +21,12 @@ jobs:
         with:
           node-version: "24"
       - run: pip install -r requirements.txt
-      # the research code (src, evaluation with its harness, testkit): every test offline, and coverage under 100%
-      # line and branch fails the job; the live tests skip themselves without IPO_BOT_LIVE
+      # the research code (src, evaluation with its harness, testkit) and the scripts: every test offline, and
+      # coverage under 100% line and branch fails the job; the live tests skip themselves without IPO_BOT_LIVE
       - run: >
           python -m pytest -q tests evaluation/harness --ignore=tests/bot
-          --cov=src --cov=evaluation --cov=testkit --cov-branch --cov-report=term-missing --cov-fail-under=100
+          --cov=src --cov=evaluation --cov=testkit --cov=scripts --cov-branch --cov-report=term-missing
+          --cov-fail-under=100
         env:
           HARNESS_SETUP: demo
           NODE_V8_COVERAGE: ${{ runner.temp }}/v8-coverage     # the Node tests' raw coverage, read by the next step

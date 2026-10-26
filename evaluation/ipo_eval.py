@@ -1062,5 +1062,11 @@ def report(final=False, again=False):
     return out
 
 
-if __name__ == "__main__":  # pragma: no cover - the command line entry; report() is tested
-    report(final="--final" in sys.argv, again="--again" in sys.argv)
+def main(argv=None):
+    """The command line: python evaluation/ipo_eval.py [--final] [--again]."""
+    argv = sys.argv[1:] if argv is None else argv
+    return report(final="--final" in argv, again="--again" in argv)
+
+
+if __name__ == "__main__":
+    main()

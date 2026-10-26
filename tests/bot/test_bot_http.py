@@ -3,7 +3,10 @@
 import gzip
 import io
 import json
+import runpy
+import sys
 import urllib.error
+import urllib.request
 from email.message import Message
 from typing import List
 
@@ -136,3 +139,39 @@ def test_retry_after_is_capped_and_the_last_try_does_not_wait(tmp_path) -> None:
     with pytest.raises(SourceError):
         h.get("https://x.test/a")
     assert [s for s in sleeps if s >= 0.01] == [60.0]  # one wait between two tries, capped at a minute
+
+
+class FakeResponse:
+    def __init__(self, body: bytes):
+        self.body, self.closed = body, False
+
+    def __enter__(self) -> "FakeResponse":
+        return self
+
+    def __exit__(self, *exc: object) -> None:
+        self.closed = True
+
+    def read(self) -> bytearray:
+        return bytearray(self.body)
+
+
+def test_the_real_opener_reads_the_whole_response_and_closes_it(tmp_path, monkeypatch) -> None:
+    seen = []
+    resp = FakeResponse(b"body")
+
+    def urlopen(req: urllib.request.Request, timeout: float) -> FakeResponse:
+        seen.append((req.full_url, req.get_header("User-agent"), timeout))
+        return resp
+
+    monkeypatch.setattr(bhttp.urllib.request, "urlopen", urlopen)  # the network itself is never reached
+    req = urllib.request.Request("https://x.test/a", headers={"User-Agent": UA})
+    out = bhttp._open(req, 7.5)
+    assert out == b"body" and type(out) is bytes and resp.closed
+    assert seen == [("https://x.test/a", UA, 7.5)]
+    assert Http(make_cfg(tmp_path)).opener is bhttp._open  # what the bot uses when no test injects one
+
+
+def test_without_truststore_the_client_still_loads(monkeypatch) -> None:
+    monkeypatch.setitem(sys.modules, "truststore", None)  # a bare install: the import fails
+    ns = runpy.run_path(bhttp.__file__, run_name="bot_http_without_truststore")
+    assert ns["key"]("https://x.test/a") == bhttp.key("https://x.test/a") and ns["RETRIED"] == bhttp.RETRIED

@@ -26,7 +26,7 @@ try:  # the OS certificate store, needed behind traffic-inspecting networks
     import truststore
 
     truststore.inject_into_ssl()
-except ImportError:  # pragma: no cover  (truststore is in requirements; this keeps a bare install importable)
+except ImportError:  # truststore is in requirements; this keeps a bare install importable
     pass
 
 
@@ -47,7 +47,7 @@ def key(url: str) -> str:
 Opener = Callable[[urllib.request.Request, float], bytes]
 
 
-def _open(req: urllib.request.Request, timeout: float) -> bytes:  # pragma: no cover  (the real network; tests inject)
+def _open(req: urllib.request.Request, timeout: float) -> bytes:  # the real network; tests inject a fake
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return bytes(r.read())
 
