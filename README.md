@@ -122,7 +122,7 @@ python evaluation/tracker.py                             # the paper bot against
 ## Tests
 
 ```bash
-python -m pytest -q tests evaluation/harness   # 786 offline tests, free: 590 for the research code and scripts (22
+python -m pytest -q tests evaluation/harness   # 785 offline tests, free: 589 for the research code and scripts (22
                                               # need Node: the browser demo against the Python: every check's name and
                                               # verdict and the few details the demo shows, sizing, earnings dates) and
                                               # 196 for the keyless bot;

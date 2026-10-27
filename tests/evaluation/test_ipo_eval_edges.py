@@ -213,7 +213,4 @@ def test_the_command_line_passes_its_flags_to_the_report(monkeypatch, tmp_path):
     calls = []
     monkeypatch.setattr(E, "report", lambda final, again: calls.append((final, again)) or tmp_path / "r.md")
     assert E.main([]) == tmp_path / "r.md" and E.main(["--final"]) and E.main(["--final", "--again"])
-    assert calls == [(False, False), (True, False), (True, True)]
-    monkeypatch.setattr(sys, "argv", ["ipo_eval.py", "--again"])                 # no argv: the real command line
-    E.main()
-    assert calls[-1] == (False, True)
+    assert E.main(["--again"]) and calls == [(False, False), (True, False), (True, True), (False, True)]

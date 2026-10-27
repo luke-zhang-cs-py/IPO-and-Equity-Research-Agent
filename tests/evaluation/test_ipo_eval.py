@@ -181,19 +181,30 @@ def test_the_winners_curse_fills_flops_in_full_and_hot_deals_thinly():
         assert allocated == sorted(allocated, reverse=True)    # the steeper the rationing, the lower
 
 
+def watched():
+    """Whether coverage, a debugger or a profiler is running, through sys.settrace or (Python 3.12+) as a sys.monitoring
+    tool, which sys.gettrace() does not show: coverage.py uses sys.monitoring by default from Python 3.14."""
+    monitoring = getattr(sys, "monitoring", None)
+    tools = (monitoring.DEBUGGER_ID, monitoring.COVERAGE_ID, monitoring.PROFILER_ID) if monitoring else ()
+    return sys.gettrace() is not None or any(monitoring.get_tool(t) is not None for t in tools)
+
+
 def test_the_live_feed_never_crashes_and_stays_fast():
     dev, _ = E.split(ROWS)
     model, banks, _, _ = E.fit_year(dev, MARKET)
-    st = E.stress(model, banks, n=400, burst=50)
+
+    def stress():
+        return E.stress(model, banks, n=400, burst=50)
+    st = stress()
     assert st["errors"] == 0, st["error_examples"]
     assert st["ok"] > 100 and st["unknown"] > 20               # broken feeds say "unknown"; good ones score
-    if sys.gettrace() is None:                                 # coverage and debuggers slow every line several-fold
+    if not watched():                                          # coverage and debuggers slow every line several-fold
         # The budget is the code's, not the machine's: on a loaded machine a few of the 400 events get pre-empted and
         # one run's p99 can land just over it. So only the timing is measured again, at most twice, and the best run
         # must be under budget; code that is really too slow misses it every time.
         p99 = [st["p99_ms"]]
         while p99[-1] >= st["budget_ms"] and len(p99) < 3:
-            p99.append(E.stress(model, banks, n=400, burst=50)["p99_ms"])
+            p99.append(stress()["p99_ms"])
         assert min(p99) < st["budget_ms"], p99
     good = E.score_live({"prospectus": "The initial public offering price is $20.00 per share.", "opening": {"indication": 25.0}},
                         model, banks, {"spy_20d": 0, "heat_30d": 0, "deals_30d": 0})

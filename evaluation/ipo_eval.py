@@ -1062,11 +1062,10 @@ def report(final=False, again=False):
     return out
 
 
-def main(argv=None):
+def main(argv):
     """The command line: python evaluation/ipo_eval.py [--final] [--again]."""
-    argv = sys.argv[1:] if argv is None else argv
     return report(final="--final" in argv, again="--again" in argv)
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

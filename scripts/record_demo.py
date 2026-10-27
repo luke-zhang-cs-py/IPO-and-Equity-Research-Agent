@@ -62,9 +62,8 @@ def main():
             snap(ms)
         b.close()
     pal = [f.quantize(colors=128, method=Image.Quantize.MEDIANCUT) for f in frames]
-    out = OUT
-    pal[0].save(out, save_all=True, append_images=pal[1:], duration=durations, loop=0, optimize=True)
-    print(f"{out} ({out.stat().st_size // 1024} KB, {len(frames)} frames)")
+    pal[0].save(OUT, save_all=True, append_images=pal[1:], duration=durations, loop=0, optimize=True)
+    print(f"{OUT} ({OUT.stat().st_size // 1024} KB, {len(frames)} frames)")
 
 
 if __name__ == "__main__":

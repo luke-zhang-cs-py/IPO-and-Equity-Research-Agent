@@ -42,8 +42,13 @@ omit = ["*/test_*.py"]   # the tests themselves are not measured
 [tool.coverage.report]
 show_missing = true
 skip_covered = true
-# the one exclusion: a script's command-line entry, which only calls main() (tested directly, or through runpy)
-exclude_also = ["if __name__ == .__main__.:"]
+# the one exclusion: a script's command-line entry, which only calls main() (tested directly, or through runpy).
+# exclude_lines, not exclude_also: it replaces coverage's defaults, so "pragma: no cover", "if TYPE_CHECKING:" and
+# "..." bodies hide nothing; partial_branches = [] does the same for "pragma: no branch".
+exclude_lines = ["if __name__ == .__main__.:"]
+partial_branches = []
+# report a file no test imports even in a folder with no __init__.py (evaluation/harness/), not only at the top
+include_namespace_packages = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

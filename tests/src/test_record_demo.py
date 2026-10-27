@@ -15,8 +15,8 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 
 
 class FakeFrame:
-    def __init__(self, log, png=b""):
-        self.log, self.png = log, png
+    def __init__(self, log):
+        self.log = log
 
     def convert(self, mode):
         self.log.append(("convert", mode))

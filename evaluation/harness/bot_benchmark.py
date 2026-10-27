@@ -154,7 +154,8 @@ class PointInTimeData:
 class Bot(Protocol):
     name: str
 
-    def predict(self, view: PITView, events: Sequence[Event]) -> pd.DataFrame: ...
+    def predict(self, view: PITView, events: Sequence[Event]) -> pd.DataFrame:
+        """One row per event: event_id, prob_up and, optionally, expected_return (see "Bot contract" above)."""
 
 
 BotFactory = Callable[[PointInTimeData], Bot]
