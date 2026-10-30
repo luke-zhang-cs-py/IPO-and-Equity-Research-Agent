@@ -1,12 +1,12 @@
 # Bot health
 
-Run `20261030T172910Z-edgar-5ba056` at 2026-10-30T17:29:10Z, data through the 2026-10-29 session. **Status: degraded.**
+Run `20261030T214902Z-edgar-aded12` at 2026-10-30T21:49:02Z, data through the 2026-10-30 session. **Status: failing.**
 
 ## Coverage
 
-- Universe: 503 symbols; 503 with prices; 503 current.
+- Universe: 503 symbols; 503 with prices; 502 current.
 - Missing tickers (no prices at all): none
-- Stale: none
+- Stale: HUBB
 - Missing trading days inside histories: 1 days over 1 symbols
 - Missing fields in the last year of bars: none
 - Delisted symbols kept: 0; membership history recorded from 2026-10-09T01:51:19Z (earlier backtests use the membership seen then).
@@ -15,7 +15,11 @@ Run `20261030T172910Z-edgar-5ba056` at 2026-10-30T17:29:10Z, data through the 20
 
 - missing_days: 1
 - moves: 12
-- staleness: 1
+- staleness: 2
+
+Errors (first 20):
+
+- staleness HUBB: newest bar 2026-10-28, 2 trading days behind 2026-10-30
 
 ## Sources this run
 
