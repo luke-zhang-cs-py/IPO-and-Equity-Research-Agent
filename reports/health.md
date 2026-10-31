@@ -1,12 +1,12 @@
 # Bot health
 
-Run `20261030T214902Z-edgar-aded12` at 2026-10-30T21:49:02Z, data through the 2026-10-30 session. **Status: failing.**
+Run `20261031T012809Z-daily-179bc7` at 2026-10-31T01:28:09Z, data through the 2026-10-30 session. **Status: degraded.**
 
 ## Coverage
 
-- Universe: 503 symbols; 503 with prices; 502 current.
+- Universe: 503 symbols; 503 with prices; 503 current.
 - Missing tickers (no prices at all): none
-- Stale: HUBB
+- Stale: none
 - Missing trading days inside histories: 1 days over 1 symbols
 - Missing fields in the last year of bars: none
 - Delisted symbols kept: 0; membership history recorded from 2026-10-09T01:51:19Z (earlier backtests use the membership seen then).
@@ -15,15 +15,11 @@ Run `20261030T214902Z-edgar-aded12` at 2026-10-30T21:49:02Z, data through the 20
 
 - missing_days: 1
 - moves: 12
-- staleness: 2
-
-Errors (first 20):
-
-- staleness HUBB: newest bar 2026-10-28, 2 trading days behind 2026-10-30
+- staleness: 1
 
 ## Sources this run
 
-- edgar_skipped: reason=SEC_USER_AGENT is not set; EDGAR asks every caller for "Name email"
+- leavers_missing_prices: n=3, symbols=['ABC', 'ANTM', 'BLL']
 
 ## IPO pipeline
 
@@ -33,6 +29,6 @@ Errors (first 20):
 
 ## Live tracking
 
-- stock, 2026-W44: base_rate Brier 0.2470 (n=2011); model Brier 0.2465 (n=2011); random_walk Brier 0.2500 (n=2011)
+- stock, 2026-W44: base_rate Brier 0.2479 (n=2514); model Brier 0.2471 (n=2514); random_walk Brier 0.2500 (n=2514)
 - ipo: no resolved predictions yet
 - stock model stock-2026-10-09-bc9b4b29c3, shrinkage 1
