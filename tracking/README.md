@@ -1,17 +1,17 @@
-# Tracking: the paper bot against the market, 2026-01-02 to 2026-10-30
+# Tracking: the paper bot against the market, 2026-01-02 to 2026-11-02
 
-Updated 2026-10-31 01:42 UTC by `python evaluation/tracker.py`; every run is a line in `track.json`. The bot is the paper replay (a breakout signal on 30 large caps, every guardrail on, fills from daily bars); this measures how its account moves with the market, not whether it has an edge.
+Updated 2026-11-03 03:32 UTC by `python evaluation/tracker.py`; every run is a line in `track.json`. The bot is the paper replay (a breakout signal on 30 large caps, every guardrail on, fills from daily bars); this measures how its account moves with the market, not whether it has an edge.
 
 | | Account | SPY |
 |---|---|---|
-| Return | +9.84% | +10.62% |
-| Worst drawdown | -3.37% | -9.13% |
+| Return | +8.35% | +10.09% |
+| Worst drawdown | -3.68% | -9.13% |
 
-Over 209 trading days: daily correlation with SPY 0.490 (95% CI 0.373 to 0.599), beta 0.324 (95% CI 0.239 to 0.409), tracking error +11.55% a year, average daily return against SPY's -1.34% a year (95% CI -26.78% to +24.05%). Intervals resample the days 1,000 times; an interval that spans zero is no evidence either way.
+Over 210 trading days: daily correlation with SPY 0.489 (95% CI 0.376 to 0.601), beta 0.329 (95% CI 0.240 to 0.417), tracking error +11.56% a year, average daily return against SPY's -2.39% a year (95% CI -28.66% to +23.45%). Intervals resample the days 1,000 times; an interval that spans zero is no evidence either way.
 
 ## Trend accordance
 
-Invested on days SPY was above its 200-day average: 76.1% on average (196 days); below it: 75.0% (13 days). By regime: bull: 76.3% (168 d) | ordinary: 75.2% (41 d).
+Invested on days SPY was above its 200-day average: 76.2% on average (197 days); below it: 75.0% (13 days). By regime: bull: 76.3% (168 d) | ordinary: 75.3% (42 d).
 
 ## Execution
 
