@@ -1,12 +1,12 @@
 # Bot health
 
-Run `20261109T233902Z-edgar-29ab43` at 2026-11-09T23:39:02Z, data through the 2026-11-09 session. **Status: failing.**
+Run `20261110T040009Z-daily-8c95b7` at 2026-11-10T04:00:09Z, data through the 2026-11-09 session. **Status: degraded.**
 
 ## Coverage
 
-- Universe: 503 symbols; 503 with prices; 433 current.
+- Universe: 503 symbols; 503 with prices; 503 current.
 - Missing tickers (no prices at all): none
-- Stale: ABBV, ABNB, ALLE, AMCR, ANET, APP, ARES, BE, CARR, CDW, CEG, CFG, COIN, CRWD, CVNA, DASH, DDOG, DELL, DOW, EXE, FANG, FDXF, FOX, FOXA, FTV
+- Stale: none
 - Missing trading days inside histories: 1 days over 1 symbols
 - Missing fields in the last year of bars: none
 - Delisted symbols kept: 1; membership history recorded from 2026-10-09T01:51:19Z (earlier backtests use the membership seen then).
@@ -15,34 +15,11 @@ Run `20261109T233902Z-edgar-29ab43` at 2026-11-09T23:39:02Z, data through the 20
 
 - missing_days: 1
 - moves: 12
-- staleness: 71
-
-Errors (first 20):
-
-- staleness ABBV: newest bar 2026-11-05, 2 trading days behind 2026-11-09
-- staleness ABNB: newest bar 2026-11-05, 2 trading days behind 2026-11-09
-- staleness ALLE: newest bar 2026-11-05, 2 trading days behind 2026-11-09
-- staleness AMCR: newest bar 2026-11-05, 2 trading days behind 2026-11-09
-- staleness ANET: newest bar 2026-11-05, 2 trading days behind 2026-11-09
-- staleness APP: newest bar 2026-11-05, 2 trading days behind 2026-11-09
-- staleness ARES: newest bar 2026-11-05, 2 trading days behind 2026-11-09
-- staleness BE: newest bar 2026-11-05, 2 trading days behind 2026-11-09
-- staleness CARR: newest bar 2026-11-05, 2 trading days behind 2026-11-09
-- staleness CDW: newest bar 2026-11-05, 2 trading days behind 2026-11-09
-- staleness CEG: newest bar 2026-11-05, 2 trading days behind 2026-11-09
-- staleness CFG: newest bar 2026-11-05, 2 trading days behind 2026-11-09
-- staleness COIN: newest bar 2026-11-05, 2 trading days behind 2026-11-09
-- staleness CRWD: newest bar 2026-11-05, 2 trading days behind 2026-11-09
-- staleness CVNA: newest bar 2026-11-05, 2 trading days behind 2026-11-09
-- staleness DASH: newest bar 2026-11-05, 2 trading days behind 2026-11-09
-- staleness DDOG: newest bar 2026-11-05, 2 trading days behind 2026-11-09
-- staleness DELL: newest bar 2026-11-05, 2 trading days behind 2026-11-09
-- staleness DOW: newest bar 2026-11-05, 2 trading days behind 2026-11-09
-- staleness EXE: newest bar 2026-11-05, 2 trading days behind 2026-11-09
+- staleness: 1
 
 ## Sources this run
 
-- edgar_skipped: reason=SEC_USER_AGENT is not set; EDGAR asks every caller for "Name email"
+- leavers_missing_prices: n=3, symbols=['ABC', 'ANTM', 'BLL']
 
 ## IPO pipeline
 
@@ -52,6 +29,6 @@ Errors (first 20):
 
 ## Live tracking
 
-- stock, 2026-W45: base_rate Brier 0.2525 (n=2441); model Brier 0.2512 (n=2441); random_walk Brier 0.2500 (n=2441)
+- stock, 2026-W46: base_rate Brier 0.2392 (n=503); model Brier 0.2259 (n=503); random_walk Brier 0.2500 (n=503)
 - ipo: no resolved predictions yet
 - stock model stock-2026-10-09-bc9b4b29c3, shrinkage 1
