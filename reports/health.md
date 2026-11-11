@@ -1,6 +1,6 @@
 # Bot health
 
-Run `20261111T014606Z-daily-2a814c` at 2026-11-11T01:46:06Z, data through the 2026-11-10 session. **Status: degraded.**
+Run `20261111T035058Z-edgar-01e8bb` at 2026-11-11T03:50:58Z, data through the 2026-11-10 session. **Status: degraded.**
 
 ## Coverage
 
@@ -19,7 +19,7 @@ Run `20261111T014606Z-daily-2a814c` at 2026-11-11T01:46:06Z, data through the 20
 
 ## Sources this run
 
-- leavers_missing_prices: n=3, symbols=['ABC', 'ANTM', 'BLL']
+- edgar_skipped: reason=SEC_USER_AGENT is not set; EDGAR asks every caller for "Name email"
 
 ## IPO pipeline
 
