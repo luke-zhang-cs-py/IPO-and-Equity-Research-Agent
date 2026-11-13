@@ -1,12 +1,12 @@
 # Bot health
 
-Run `20261113T134008Z-edgar-0b2d7d` at 2026-11-13T13:40:08Z, data through the 2026-11-12 session. **Status: degraded.**
+Run `20261113T210618Z-edgar-637caf` at 2026-11-13T21:06:18Z, data through the 2026-11-13 session. **Status: failing.**
 
 ## Coverage
 
-- Universe: 503 symbols; 503 with prices; 503 current.
+- Universe: 503 symbols; 503 with prices; 201 current.
 - Missing tickers (no prices at all): none
-- Stale: none
+- Stale: A, AAPL, ABBV, ABNB, ABT, ACGL, ACN, ADBE, ADI, ADM, ADP, ADSK, AEE, AEP, AES, AFL, AIG, AIZ, AJG, AKAM, ALB, ALGN, ALL, ALLE, AMAT
 - Missing trading days inside histories: 1 days over 1 symbols
 - Missing fields in the last year of bars: none
 - Delisted symbols kept: 1; membership history recorded from 2026-10-09T01:51:19Z (earlier backtests use the membership seen then).
@@ -15,7 +15,30 @@ Run `20261113T134008Z-edgar-0b2d7d` at 2026-11-13T13:40:08Z, data through the 20
 
 - missing_days: 1
 - moves: 12
-- staleness: 1
+- staleness: 303
+
+Errors (first 20):
+
+- staleness A: newest bar 2026-11-11, 2 trading days behind 2026-11-13
+- staleness AAPL: newest bar 2026-11-11, 2 trading days behind 2026-11-13
+- staleness ABBV: newest bar 2026-11-11, 2 trading days behind 2026-11-13
+- staleness ABNB: newest bar 2026-11-11, 2 trading days behind 2026-11-13
+- staleness ABT: newest bar 2026-11-11, 2 trading days behind 2026-11-13
+- staleness ACGL: newest bar 2026-11-11, 2 trading days behind 2026-11-13
+- staleness ACN: newest bar 2026-11-11, 2 trading days behind 2026-11-13
+- staleness ADBE: newest bar 2026-11-11, 2 trading days behind 2026-11-13
+- staleness ADI: newest bar 2026-11-11, 2 trading days behind 2026-11-13
+- staleness ADM: newest bar 2026-11-11, 2 trading days behind 2026-11-13
+- staleness ADP: newest bar 2026-11-11, 2 trading days behind 2026-11-13
+- staleness ADSK: newest bar 2026-11-11, 2 trading days behind 2026-11-13
+- staleness AEE: newest bar 2026-11-11, 2 trading days behind 2026-11-13
+- staleness AEP: newest bar 2026-11-11, 2 trading days behind 2026-11-13
+- staleness AES: newest bar 2026-11-11, 2 trading days behind 2026-11-13
+- staleness AFL: newest bar 2026-11-11, 2 trading days behind 2026-11-13
+- staleness AIG: newest bar 2026-11-11, 2 trading days behind 2026-11-13
+- staleness AIZ: newest bar 2026-11-11, 2 trading days behind 2026-11-13
+- staleness AJG: newest bar 2026-11-11, 2 trading days behind 2026-11-13
+- staleness AKAM: newest bar 2026-11-11, 2 trading days behind 2026-11-13
 
 ## Sources this run
 
