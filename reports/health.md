@@ -1,6 +1,6 @@
 # Bot health
 
-Run `20261114T020415Z-daily-2c7b51` at 2026-11-14T02:04:15Z, data through the 2026-11-13 session. **Status: degraded.**
+Run `20261114T130143Z-weekly-4eb3aa` at 2026-11-14T13:01:43Z, data through the 2026-11-13 session. **Status: degraded.**
 
 ## Coverage
 
@@ -19,7 +19,7 @@ Run `20261114T020415Z-daily-2c7b51` at 2026-11-14T02:04:15Z, data through the 20
 
 ## Sources this run
 
-- leavers_missing_prices: n=3, symbols=['ABC', 'ANTM', 'BLL']
+- every source answered
 
 ## IPO pipeline
 
