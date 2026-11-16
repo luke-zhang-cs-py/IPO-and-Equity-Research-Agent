@@ -1,12 +1,12 @@
 # Bot health
 
-Run `20261116T142022Z-edgar-646609` at 2026-11-16T14:20:22Z, data through the 2026-11-13 session. **Status: degraded.**
+Run `20261116T233602Z-edgar-e8dd10` at 2026-11-16T23:36:02Z, data through the 2026-11-16 session. **Status: failing.**
 
 ## Coverage
 
-- Universe: 503 symbols; 503 with prices; 503 current.
+- Universe: 503 symbols; 503 with prices; 433 current.
 - Missing tickers (no prices at all): none
-- Stale: none
+- Stale: ABBV, ABNB, ALLE, AMCR, ANET, APP, ARES, BE, CARR, CDW, CEG, CFG, COIN, CRWD, CVNA, DASH, DDOG, DELL, DOW, EXE, FANG, FDXF, FOX, FOXA, FTV
 - Missing trading days inside histories: 1 days over 1 symbols
 - Missing fields in the last year of bars: none
 - Delisted symbols kept: 1; membership history recorded from 2026-10-09T01:51:19Z (earlier backtests use the membership seen then).
@@ -15,7 +15,30 @@ Run `20261116T142022Z-edgar-646609` at 2026-11-16T14:20:22Z, data through the 20
 
 - missing_days: 1
 - moves: 12
-- staleness: 1
+- staleness: 71
+
+Errors (first 20):
+
+- staleness ABBV: newest bar 2026-11-12, 2 trading days behind 2026-11-16
+- staleness ABNB: newest bar 2026-11-12, 2 trading days behind 2026-11-16
+- staleness ALLE: newest bar 2026-11-12, 2 trading days behind 2026-11-16
+- staleness AMCR: newest bar 2026-11-12, 2 trading days behind 2026-11-16
+- staleness ANET: newest bar 2026-11-12, 2 trading days behind 2026-11-16
+- staleness APP: newest bar 2026-11-12, 2 trading days behind 2026-11-16
+- staleness ARES: newest bar 2026-11-12, 2 trading days behind 2026-11-16
+- staleness BE: newest bar 2026-11-12, 2 trading days behind 2026-11-16
+- staleness CARR: newest bar 2026-11-12, 2 trading days behind 2026-11-16
+- staleness CDW: newest bar 2026-11-12, 2 trading days behind 2026-11-16
+- staleness CEG: newest bar 2026-11-12, 2 trading days behind 2026-11-16
+- staleness CFG: newest bar 2026-11-12, 2 trading days behind 2026-11-16
+- staleness COIN: newest bar 2026-11-12, 2 trading days behind 2026-11-16
+- staleness CRWD: newest bar 2026-11-12, 2 trading days behind 2026-11-16
+- staleness CVNA: newest bar 2026-11-12, 2 trading days behind 2026-11-16
+- staleness DASH: newest bar 2026-11-12, 2 trading days behind 2026-11-16
+- staleness DDOG: newest bar 2026-11-12, 2 trading days behind 2026-11-16
+- staleness DELL: newest bar 2026-11-12, 2 trading days behind 2026-11-16
+- staleness DOW: newest bar 2026-11-12, 2 trading days behind 2026-11-16
+- staleness EXE: newest bar 2026-11-12, 2 trading days behind 2026-11-16
 
 ## Sources this run
 
