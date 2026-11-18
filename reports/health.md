@@ -1,6 +1,6 @@
 # Bot health
 
-Run `20261118T001528Z-edgar-5c9a3b` at 2026-11-18T00:15:28Z, data through the 2026-11-17 session. **Status: degraded.**
+Run `20261118T032638Z-daily-fea63b` at 2026-11-18T03:26:38Z, data through the 2026-11-17 session. **Status: degraded.**
 
 ## Coverage
 
@@ -19,7 +19,7 @@ Run `20261118T001528Z-edgar-5c9a3b` at 2026-11-18T00:15:28Z, data through the 20
 
 ## Sources this run
 
-- edgar_skipped: reason=SEC_USER_AGENT is not set; EDGAR asks every caller for "Name email"
+- leavers_missing_prices: n=3, symbols=['ABC', 'ANTM', 'BLL']
 
 ## IPO pipeline
 
@@ -29,6 +29,6 @@ Run `20261118T001528Z-edgar-5c9a3b` at 2026-11-18T00:15:28Z, data through the 20
 
 ## Live tracking
 
-- stock, 2026-W47: base_rate Brier 0.2564 (n=503); model Brier 0.2659 (n=503); random_walk Brier 0.2500 (n=503)
+- stock, 2026-W47: base_rate Brier 0.2598 (n=1006); model Brier 0.2865 (n=1006); random_walk Brier 0.2500 (n=1006)
 - ipo: no resolved predictions yet
 - stock model stock-2026-10-09-bc9b4b29c3, shrinkage 1
