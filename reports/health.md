@@ -1,6 +1,6 @@
 # Bot health
 
-Run `20261120T015753Z-edgar-b7e0f2` at 2026-11-20T01:57:53Z, data through the 2026-11-19 session. **Status: degraded.**
+Run `20261120T025342Z-daily-35af0d` at 2026-11-20T02:53:42Z, data through the 2026-11-19 session. **Status: degraded.**
 
 ## Coverage
 
@@ -14,12 +14,26 @@ Run `20261120T015753Z-edgar-b7e0f2` at 2026-11-20T01:57:53Z, data through the 20
 ## Checks
 
 - missing_days: 1
-- moves: 12
-- staleness: 2
+- moves: 13
+- staleness: 1
 
 ## Sources this run
 
-- edgar_skipped: reason=SEC_USER_AGENT is not set; EDGAR asks every caller for "Name email"
+- leavers_missing_prices: n=3, symbols=['ABC', 'ANTM', 'BLL']
+- reconcile_unavailable: symbol=SPX, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=WSM, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=WST, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=WTW, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=WY, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=WYNN, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=XEL, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=XOM, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=XYL, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=XYZ, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=YUM, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=ZBH, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=ZBRA, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=ZTS, error=blocked: 403 from cdn.cboe.com
 
 ## IPO pipeline
 
@@ -29,6 +43,6 @@ Run `20261120T015753Z-edgar-b7e0f2` at 2026-11-20T01:57:53Z, data through the 20
 
 ## Live tracking
 
-- stock, 2026-W47: base_rate Brier 0.2572 (n=1509); model Brier 0.2755 (n=1509); random_walk Brier 0.2500 (n=1509)
+- stock, 2026-W47: base_rate Brier 0.2596 (n=1944); model Brier 0.2764 (n=1944); random_walk Brier 0.2500 (n=1944)
 - ipo: no resolved predictions yet
 - stock model stock-2026-10-09-bc9b4b29c3, shrinkage 1
