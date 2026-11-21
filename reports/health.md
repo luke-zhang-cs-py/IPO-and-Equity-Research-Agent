@@ -1,12 +1,12 @@
 # Bot health
 
-Run `20261121T015338Z-edgar-daffb9` at 2026-11-21T01:53:38Z, data through the 2026-11-20 session. **Status: failing.**
+Run `20261121T030216Z-daily-629646` at 2026-11-21T03:02:16Z, data through the 2026-11-20 session. **Status: degraded.**
 
 ## Coverage
 
-- Universe: 503 symbols; 503 with prices; 435 current.
+- Universe: 503 symbols; 503 with prices; 503 current.
 - Missing tickers (no prices at all): none
-- Stale: ABBV, ABNB, ALLE, AMCR, ANET, APP, ARES, BE, CARR, CDW, CEG, CFG, COIN, CRWD, CVNA, DASH, DDOG, DELL, DOW, EXE, FANG, FDXF, FOX, FOXA, FTV
+- Stale: none
 - Missing trading days inside histories: 1 days over 1 symbols
 - Missing fields in the last year of bars: none
 - Delisted symbols kept: 1; membership history recorded from 2026-10-09T01:51:19Z (earlier backtests use the membership seen then).
@@ -14,35 +14,39 @@ Run `20261121T015338Z-edgar-daffb9` at 2026-11-21T01:53:38Z, data through the 20
 ## Checks
 
 - missing_days: 1
-- moves: 13
-- staleness: 70
-
-Errors (first 20):
-
-- staleness ABBV: newest bar 2026-11-18, 2 trading days behind 2026-11-20
-- staleness ABNB: newest bar 2026-11-18, 2 trading days behind 2026-11-20
-- staleness ALLE: newest bar 2026-11-18, 2 trading days behind 2026-11-20
-- staleness AMCR: newest bar 2026-11-18, 2 trading days behind 2026-11-20
-- staleness ANET: newest bar 2026-11-18, 2 trading days behind 2026-11-20
-- staleness APP: newest bar 2026-11-18, 2 trading days behind 2026-11-20
-- staleness ARES: newest bar 2026-11-18, 2 trading days behind 2026-11-20
-- staleness BE: newest bar 2026-11-18, 2 trading days behind 2026-11-20
-- staleness CARR: newest bar 2026-11-18, 2 trading days behind 2026-11-20
-- staleness CDW: newest bar 2026-11-18, 2 trading days behind 2026-11-20
-- staleness CEG: newest bar 2026-11-18, 2 trading days behind 2026-11-20
-- staleness CFG: newest bar 2026-11-18, 2 trading days behind 2026-11-20
-- staleness COIN: newest bar 2026-11-18, 2 trading days behind 2026-11-20
-- staleness CRWD: newest bar 2026-11-18, 2 trading days behind 2026-11-20
-- staleness CVNA: newest bar 2026-11-18, 2 trading days behind 2026-11-20
-- staleness DASH: newest bar 2026-11-18, 2 trading days behind 2026-11-20
-- staleness DDOG: newest bar 2026-11-18, 2 trading days behind 2026-11-20
-- staleness DELL: newest bar 2026-11-18, 2 trading days behind 2026-11-20
-- staleness DOW: newest bar 2026-11-18, 2 trading days behind 2026-11-20
-- staleness EXE: newest bar 2026-11-18, 2 trading days behind 2026-11-20
+- moves: 12
+- staleness: 1
 
 ## Sources this run
 
-- edgar_skipped: reason=SEC_USER_AGENT is not set; EDGAR asks every caller for "Name email"
+- leavers_missing_prices: n=3, symbols=['ABC', 'ANTM', 'BLL']
+- reconcile_unavailable: symbol=A, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=AAPL, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=ABBV, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=ABNB, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=ABT, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=ACGL, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=ACN, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=ADBE, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=ADI, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=ADM, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=ADP, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=ADSK, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=AEE, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=AEP, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=AES, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=AFL, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=AIG, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=AIZ, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=AJG, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=AKAM, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=ALB, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=ALGN, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=ALL, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=ALLE, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=AMAT, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=AMCR, error=blocked: 403 from cdn.cboe.com
+- reconcile_unavailable: symbol=SPX, error=blocked: 403 from cdn.cboe.com
 
 ## IPO pipeline
 
@@ -52,6 +56,7 @@ Errors (first 20):
 
 ## Live tracking
 
-- stock, 2026-W47: base_rate Brier 0.2596 (n=1944); model Brier 0.2764 (n=1944); random_walk Brier 0.2500 (n=1944)
+- stock, 2026-W47: base_rate Brier 0.2590 (n=2514); model Brier 0.2762 (n=2514); random_walk Brier 0.2500 (n=2514)
 - ipo: no resolved predictions yet
 - stock model stock-2026-10-09-bc9b4b29c3, shrinkage 1
+- **stock: calibration drift: expected calibration error 0.104 over the last 3 periods (limit 0.10)**
