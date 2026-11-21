@@ -1,6 +1,6 @@
 # Bot health
 
-Run `20261121T030216Z-daily-629646` at 2026-11-21T03:02:16Z, data through the 2026-11-20 session. **Status: degraded.**
+Run `20261121T141709Z-weekly-39369b` at 2026-11-21T14:17:09Z, data through the 2026-11-20 session. **Status: degraded.**
 
 ## Coverage
 
@@ -19,34 +19,7 @@ Run `20261121T030216Z-daily-629646` at 2026-11-21T03:02:16Z, data through the 20
 
 ## Sources this run
 
-- leavers_missing_prices: n=3, symbols=['ABC', 'ANTM', 'BLL']
-- reconcile_unavailable: symbol=A, error=blocked: 403 from cdn.cboe.com
-- reconcile_unavailable: symbol=AAPL, error=blocked: 403 from cdn.cboe.com
-- reconcile_unavailable: symbol=ABBV, error=blocked: 403 from cdn.cboe.com
-- reconcile_unavailable: symbol=ABNB, error=blocked: 403 from cdn.cboe.com
-- reconcile_unavailable: symbol=ABT, error=blocked: 403 from cdn.cboe.com
-- reconcile_unavailable: symbol=ACGL, error=blocked: 403 from cdn.cboe.com
-- reconcile_unavailable: symbol=ACN, error=blocked: 403 from cdn.cboe.com
-- reconcile_unavailable: symbol=ADBE, error=blocked: 403 from cdn.cboe.com
-- reconcile_unavailable: symbol=ADI, error=blocked: 403 from cdn.cboe.com
-- reconcile_unavailable: symbol=ADM, error=blocked: 403 from cdn.cboe.com
-- reconcile_unavailable: symbol=ADP, error=blocked: 403 from cdn.cboe.com
-- reconcile_unavailable: symbol=ADSK, error=blocked: 403 from cdn.cboe.com
-- reconcile_unavailable: symbol=AEE, error=blocked: 403 from cdn.cboe.com
-- reconcile_unavailable: symbol=AEP, error=blocked: 403 from cdn.cboe.com
-- reconcile_unavailable: symbol=AES, error=blocked: 403 from cdn.cboe.com
-- reconcile_unavailable: symbol=AFL, error=blocked: 403 from cdn.cboe.com
-- reconcile_unavailable: symbol=AIG, error=blocked: 403 from cdn.cboe.com
-- reconcile_unavailable: symbol=AIZ, error=blocked: 403 from cdn.cboe.com
-- reconcile_unavailable: symbol=AJG, error=blocked: 403 from cdn.cboe.com
-- reconcile_unavailable: symbol=AKAM, error=blocked: 403 from cdn.cboe.com
-- reconcile_unavailable: symbol=ALB, error=blocked: 403 from cdn.cboe.com
-- reconcile_unavailable: symbol=ALGN, error=blocked: 403 from cdn.cboe.com
-- reconcile_unavailable: symbol=ALL, error=blocked: 403 from cdn.cboe.com
-- reconcile_unavailable: symbol=ALLE, error=blocked: 403 from cdn.cboe.com
-- reconcile_unavailable: symbol=AMAT, error=blocked: 403 from cdn.cboe.com
-- reconcile_unavailable: symbol=AMCR, error=blocked: 403 from cdn.cboe.com
-- reconcile_unavailable: symbol=SPX, error=blocked: 403 from cdn.cboe.com
+- every source answered
 
 ## IPO pipeline
 
