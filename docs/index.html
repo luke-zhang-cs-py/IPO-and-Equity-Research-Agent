@@ -1,36 +1,112 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="theme-dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>IPO bot: research memos with the checks built in</title>
 <meta name="description" content="An IPO and stock research bot on Claude: SEC EDGAR, FRED and market data, one-page memos with scenarios and a stop-working price, every number checked, and an honest benchmark against simple prediction algorithms.">
+<script>
+// Restores a theme picked before, ahead of first paint. Not needed to theme the page: class="theme-dark" on <html>
+// already does that with no JavaScript. The key is 'theme' on every page of luke-zhang-cs-py.github.io, so one choice
+// carries across the site; an unknown name falls back to dark (the :where(:root) block) and the toggle resets it.
+try { var saved = localStorage.getItem("theme"); if (/^[a-z]+$/.test(saved)) document.documentElement.classList.replace("theme-dark", "theme-" + saved); } catch (e) { /* storage blocked */ }
+document.documentElement.classList.add("js");
+</script>
 <style>
-:root { --bg: #f7f8f6; --card: #fff; --ink: #14181c; --muted: #5b646d; --rule: #d9dedf; --accent: #0f766e; --soft: #eef2f1; color-scheme: light; }
-@media (prefers-color-scheme: dark) { :root { --bg: #111416; --card: #181c1f; --ink: #e9edef; --muted: #9aa4ac; --rule: #2a3135; --accent: #2dd4bf; --soft: #1f2528; color-scheme: dark; } }
+/* ======================================================================
+   DESIGN TOKENS. The page's two existing palettes (teal on paper, teal on charcoal), now dark by default.
+   1. Theme-independent tokens (spacing, type, shape) live on :root.
+   2. Colour tokens live in one block per theme, keyed on a class on <html>.
+      class="theme-dark" is in the markup, so the page is themed with no JavaScript.
+   3. Components below read semantic tokens only, never a raw colour.
+   To add a theme: copy a theme block, rename it .theme-<name>, set every token in it,
+   and add <name> to THEMES in the script at the bottom. Nothing else changes, and
+   tests/src/test_theme.py checks the new block and its pairings for WCAG AA.
+   ====================================================================== */
+:root {
+  /* spacing: --space-N is N x 4px */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 20px; --space-9: 36px; --space-10: 40px; --space-14: 56px;
+  /* typography */
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --text-body: 16px; --text-xs: .85rem; --text-sm: .88rem; --text-md: .9rem; --text-lg: .92rem; --text-xl: 1.1rem; --text-2xl: 1.25rem; --text-3xl: 2rem;
+  --leading-tight: 1.15; --leading-body: 1.6;
+  --weight-semibold: 600; --weight-bold: 700;
+  --tracking-tight: -.015em;
+  /* shape */
+  --radius-sm: 4px; --radius-md: 8px; --radius-lg: 10px;
+}
+
+/* ---- themes. :where(:root) has no specificity, so it is only the fallback for an <html> with no theme class or an
+   unknown one; any .theme-* block wins over it. */
+:where(:root), .theme-dark {
+  color-scheme: dark;
+  --color-bg: #111416;
+  --color-surface: #181c1f;
+  --color-surface-subtle: #1f2528;   /* code */
+  --color-border: #2a3135;           /* table rules, the GIF's frame */
+  --color-border-strong: #6b767e;    /* buttons: 3:1 on bg and both surfaces */
+  --color-text-primary: #e9edef;
+  --color-text-muted: #9aa4ac;
+  --color-text-subtle: #8f9aa2;
+  --color-accent: #2dd4bf;
+  --color-accent-hover: #5eead4;
+  --color-accent-subtle: #12302d;
+  --color-text-on-accent: #04201d;
+  --color-danger: #f87171;
+  --icon-sun: inline; --icon-moon: none;   /* the toggle names where it will take you */
+}
+.theme-light {
+  color-scheme: light;
+  --color-bg: #f7f8f6;
+  --color-surface: #ffffff;
+  --color-surface-subtle: #eef2f1;
+  --color-border: #d9dedf;
+  --color-border-strong: #7b858d;
+  --color-text-primary: #14181c;
+  --color-text-muted: #5b646d;
+  --color-text-subtle: #5a6570;
+  --color-accent: #0f766e;
+  --color-accent-hover: #115e59;
+  --color-accent-subtle: #dcefec;
+  --color-text-on-accent: #ffffff;
+  --color-danger: #b3261e;
+  --icon-sun: none; --icon-moon: inline;
+}
+
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-main { max-width: 760px; margin: 0 auto; padding: 36px 18px 56px; }
-h1 { font-size: 2rem; line-height: 1.15; margin: 0 0 8px; letter-spacing: -0.015em; }
-h2 { font-size: 1.25rem; margin: 34px 0 8px; }
+body { margin: 0; background: var(--color-bg); color: var(--color-text-primary); font: var(--text-body)/var(--leading-body) var(--font-sans); }
+main { max-width: 760px; margin: 0 auto; padding: var(--space-9) var(--space-5) var(--space-14); }
+.top { display: flex; justify-content: flex-end; margin: calc(-1 * var(--space-5)) 0 var(--space-2); }
+.theme-btn { font: var(--weight-semibold) var(--text-xs) var(--font-sans); color: var(--color-text-primary); background: var(--color-surface); border: 1px solid var(--color-border-strong); border-radius: var(--radius-md); padding: var(--space-1) var(--space-3); cursor: pointer; }
+.theme-btn:hover { border-color: var(--color-accent); color: var(--color-accent); }
+.theme-btn:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.theme-btn .i-sun { display: var(--icon-sun); } .theme-btn .i-moon { display: var(--icon-moon); }
+html:not(.js) .top { display: none; }     /* no script, no toggle: the page stays dark */
+h1 { font-size: var(--text-3xl); line-height: var(--leading-tight); margin: 0 0 var(--space-2); letter-spacing: var(--tracking-tight); }
+h2 { font-size: var(--text-2xl); margin: var(--space-9) 0 var(--space-2); }
 p, li { max-width: 68ch; }
-.lede { font-size: 1.1rem; color: var(--muted); margin: 0 0 18px; }
-.cta { display: inline-block; background: var(--ink); color: var(--bg); text-decoration: none; font-weight: 700; padding: 9px 16px; border-radius: 8px; margin-right: 8px; }
-.cta.ghost { background: transparent; color: var(--ink); border: 1px solid var(--ink); }
-img { max-width: 100%; height: auto; border: 1px solid var(--rule); border-radius: 10px; margin: 18px 0 4px; }
-.cap { color: var(--muted); font-size: .9rem; margin: 0; }
+.lede { font-size: var(--text-xl); color: var(--color-text-muted); margin: 0 0 var(--space-5); }
+.cta { display: inline-block; background: var(--color-text-primary); color: var(--color-bg); text-decoration: none; font-weight: var(--weight-bold); padding: var(--space-2) var(--space-4); border-radius: var(--radius-md); margin-right: var(--space-2); }
+.cta.ghost { background: transparent; color: var(--color-text-primary); border: 1px solid var(--color-text-primary); }
+img { max-width: 100%; height: auto; border: 1px solid var(--color-border); border-radius: var(--radius-lg); margin: var(--space-5) 0 var(--space-1); }
+.cap { color: var(--color-text-muted); font-size: var(--text-md); margin: 0; }
 .tablewrap { overflow-x: auto; }
-table { border-collapse: collapse; width: 100%; font-size: .92rem; font-variant-numeric: tabular-nums; margin: 8px 0; }
-th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--rule); vertical-align: top; }
-th { color: var(--muted); font-weight: 600; }
-code { background: var(--soft); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
-pre { background: var(--soft); padding: 12px; border-radius: 8px; overflow-x: auto; font-size: .85rem; }
-a { color: var(--accent); }
-.foot { color: var(--muted); font-size: .88rem; margin-top: 40px; }
+table { border-collapse: collapse; width: 100%; font-size: var(--text-lg); font-variant-numeric: tabular-nums; margin: var(--space-2) 0; }
+th, td { text-align: left; padding: var(--space-2) var(--space-2); border-bottom: 1px solid var(--color-border); vertical-align: top; }
+th { color: var(--color-text-muted); font-weight: var(--weight-semibold); }
+code { background: var(--color-surface-subtle); padding: 1px var(--space-1); border-radius: var(--radius-sm); font-size: .9em; }
+code, pre { font-family: var(--font-mono); }
+pre { background: var(--color-surface-subtle); padding: var(--space-3); border-radius: var(--radius-md); overflow-x: auto; font-size: var(--text-xs); }
+a { color: var(--color-accent); }
+a:hover { color: var(--color-accent-hover); }
+.cta:hover { color: var(--color-bg); } .cta.ghost:hover { color: var(--color-accent); border-color: var(--color-accent); }
+.foot { color: var(--color-text-muted); font-size: var(--text-sm); margin-top: var(--space-10); }
 </style>
 </head>
 <body>
 <main>
+  <div class="top"><button type="button" class="theme-btn" id="themeBtn" aria-label="Switch to light theme"><span class="i-sun" aria-hidden="true">◐ Light</span><span class="i-moon" aria-hidden="true">◑ Dark</span></button></div>
   <h1>IPO bot</h1>
   <p class="lede">An IPO and stock research assistant on Claude that answers in a one-page memo, then lets code check every number in it.</p>
   <p><a class="cta" href="app/">Open the terminal →</a><a class="cta ghost" href="https://github.com/luke-zhang-cs-py/IPO-and-Equity-Research-Agent">Source</a></p>
@@ -102,5 +178,27 @@ python -m pytest -q tests evaluation/harness         # 738 offline tests, free</
   </ul>
   <p class="foot">Built by <a href="https://luke-zhang-cs-py.github.io/">Luke Zhang</a>. For information only, not investment advice.</p>
 </main>
+<script>
+// THEMES in order, each with a .theme-<name> block in the tokens above; the first is the one in the markup. An unknown
+// saved name (a theme since removed) falls back to THEMES[0] and is not saved.
+(() => {
+  const THEMES = ["dark", "light"], root = document.documentElement, btn = document.getElementById("themeBtn");
+  let theme = THEMES.find((t) => root.classList.contains("theme-" + t)) || THEMES[0];
+  const nextTheme = () => THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
+  function applyTheme(name) {
+    root.className = (root.className.replace(/(^|\s)theme-\S+/g, "").trim() + " theme-" + name).trim();
+    theme = name;
+    btn.setAttribute("aria-label", "Switch to " + nextTheme() + " theme");
+    const bg = getComputedStyle(root).getPropertyValue("--color-bg").trim();
+    document.querySelectorAll('meta[name="theme-color"]').forEach((m) => { m.content = bg; });
+  }
+  applyTheme(theme);
+  btn.addEventListener("click", () => {
+    const next = nextTheme();
+    try { localStorage.setItem("theme", next); } catch (e) { /* not remembered */ }
+    applyTheme(next);
+  });
+})();
+</script>
 </body>
 </html>
