@@ -122,10 +122,11 @@ python evaluation/tracker.py                             # the paper bot against
 ## Tests
 
 ```bash
-python -m pytest -q tests evaluation/harness   # 785 offline tests, free: 589 for the research code and scripts (22
+python -m pytest -q tests evaluation/harness   # 807 offline tests, free: 611 for the research code and scripts (22
                                               # need Node: the browser demo against the Python: every check's name and
-                                              # verdict and the few details the demo shows, sizing, earnings dates) and
-                                              # 196 for the keyless bot;
+                                              # verdict and the few details the demo shows, sizing, earnings dates;
+                                              # 11 need Playwright's Chromium: the pages' light and dark themes in a
+                                              # browser) and 196 for the keyless bot;
                                               # both at 100% line and branch coverage, over every non-test .py file
 python scripts/js_coverage.py              # the browser demo's JavaScript (docs/app/*.js): runs the Node tests with
                                            # NODE_V8_COVERAGE set and reports line, function and branch coverage
