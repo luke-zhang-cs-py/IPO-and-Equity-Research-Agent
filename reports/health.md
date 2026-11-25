@@ -1,6 +1,6 @@
 # Bot health
 
-Run `20261125T044946Z-daily-627d15` at 2026-11-25T04:49:46Z, data through the 2026-11-24 session. **Status: failing.**
+Run `20261125T115413Z-edgar-92abb0` at 2026-11-25T11:54:13Z, data through the 2026-11-24 session. **Status: failing.**
 
 ## Coverage
 
@@ -23,36 +23,7 @@ Errors (first 20):
 
 ## Sources this run
 
-- prices_failed: symbol=DAL, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=DASH, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=DD, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=DDOG, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=DE, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=DECK, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=DELL, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=DG, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=DGX, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=DHI, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=DHR, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=DIS, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=DLR, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=DLTR, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=DOC, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=DOV, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=DOW, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=DPZ, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=DRI, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=DTE, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=DUK, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=DVA, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=DVN, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=DXCM, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=MTD, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=MU, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=NCLH, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=NDAQ, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=NDSN, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
-- prices_failed: symbol=NEE, errors=[('yahoo', 'rate_limited: 429 from query1.finance.yahoo.com'), ('cboe', 'blocked: 403 from cdn.cboe.com')]
+- edgar_skipped: reason=SEC_USER_AGENT is not set; EDGAR asks every caller for "Name email"
 
 ## IPO pipeline
 
