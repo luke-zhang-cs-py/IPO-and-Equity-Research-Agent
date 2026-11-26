@@ -8,12 +8,13 @@ the themes in THEMES. These tests hold that structure and WCAG AA:
 - every foreground/background pair the page uses meets AA in every theme (4.5:1 text, 3:1 large text and UI edges),
   read from the tokens, so pairs a DOM scan never sees (a selected row, a failed check, a hover) are covered too;
 - no component rule, inline style or chart code carries a raw colour;
+- the type is DESIGN.md's: the three self-hosted families from docs/fonts.css, the 3x scale, no banned font anywhere;
 - with JavaScript off the page is dark; the toggle switches and remembers; an unknown saved theme falls back to dark;
-- a scan of every visible text node (chart labels included) meets AA in both themes.
+- a scan of every visible text node (chart labels included) meets AA in both themes, with the web fonts loaded.
 
 The first four read the files and always run. The browser checks need Playwright's Chromium and skip without it. The
-pages are served through Playwright's routing (no socket), and the web fonts are answered with an empty stylesheet, so
-nothing leaves the machine.
+pages and their self-hosted fonts are served through Playwright's routing (no socket), and any other request is answered
+with an empty body, so nothing leaves the machine.
 """
 import mimetypes
 import pathlib
@@ -33,20 +34,21 @@ CONTRACT = {
 }
 
 ALL_BG = ["bg", "surface", "surface-subtle", "accent-subtle"]
+BOXES = ["bg", "surface", "surface-subtle"]     # every background but the chosen row, where these are swapped (see CHOSEN_ROW)
 # (foreground, [backgrounds]) as each page actually uses them. "overlay" is the translucent status bar and chart
 # readout, laid over the page background.
 PAIRS = {
     APP: {
         "text": [
             ("text-primary", ALL_BG), ("text-strong", ALL_BG + ["overlay"]), ("text-muted", ALL_BG + ["overlay"]),
-            ("text-subtle", ALL_BG), ("accent", ALL_BG + ["overlay"]), ("accent-hover", ["bg", "surface", "surface-subtle"]),
+            ("text-subtle", BOXES), ("accent", BOXES + ["overlay"]), ("accent-hover", ALL_BG),
             ("gain", ALL_BG + ["overlay"]), ("loss", ALL_BG + ["overlay"]), ("series-base", ["surface", "overlay"]),
-            ("series-pwv", ["surface", "overlay"]), ("warning", ["surface"]), ("danger", ALL_BG), ("code", ["surface-subtle"]),
+            ("series-pwv", ["surface", "overlay"]), ("warning", ["surface"]), ("danger", ALL_BG), ("code", ["bg"]),
             ("text-on-accent", ["accent", "accent-hover"]), ("text-on-accent-muted", ["accent"]),
             ("text-on-warning", ["warning-fill"]),
         ],
         "ui": [
-            ("border-strong", ["bg", "surface", "surface-subtle"]), ("accent", ["bg", "surface", "surface-subtle"]),
+            ("border-strong", ["bg", "surface"]), ("accent", ["bg", "surface", "surface-subtle"]),
             ("gain", ["surface"]), ("loss", ["surface"]), ("series-base", ["surface"]), ("series-pwv", ["surface"]),
             ("series-neutral", ["surface"]), ("text-strong", ["surface"]),
         ],
@@ -54,14 +56,24 @@ PAIRS = {
     WRITEUP: {
         "text": [
             ("text-primary", ALL_BG), ("bg", ["text-primary"]), ("text-muted", ["bg", "surface", "surface-subtle"]),
-            ("text-subtle", ["bg", "surface"]), ("accent", ALL_BG), ("accent-hover", ["bg"]),
+            ("text-subtle", ["bg", "surface"]), ("accent", BOXES), ("accent-hover", ["bg"]),
             ("text-on-accent", ["accent", "accent-hover"]), ("danger", ["bg", "surface"]),
         ],
         "ui": [("border-strong", ["bg", "surface"]), ("accent", ["bg", "surface"]), ("text-primary", ["bg"])],
     },
 }
+# What the pairs above leave out, held by the stylesheet instead (see the end of the AA test). Controls with a
+# border-strong edge are filled with bg or surface, never surface-subtle (2.8:1 there in the dark). The app's chosen row
+# (accent-subtle) shows its subtle text in muted and its hovered accent in accent-hover; the write-up has no chosen row.
+CHOSEN_ROW = ["#cmp tbody tr.on .rank, #cmp tbody tr.on .x { color: var(--color-text-muted); }",
+              "#cmp tbody tr.on .pick:hover { color: var(--color-accent-hover); }"]
 PAGES = [APP, WRITEUP]
 IDS = ["app", "writeup"]
+FONTS = DOCS / "fonts.css"
+FONT_TOKENS = {"--font-display": '"Bricolage Grotesque", sans-serif', "--font-sans": '"IBM Plex Sans", sans-serif',
+               "--font-mono": '"IBM Plex Mono", monospace'}
+TYPE_SCALE = {"--text-sm": "13px", "--text-base": "16px", "--text-xl": "48px", "--text-display": "clamp(64px, 14vw, 144px)"}
+BANNED = r"\b(?:Inter|Roboto|Open Sans|Arial|system-ui|-apple-system|Segoe UI|Helvetica|JetBrains)\b|fonts\.(?:googleapis|gstatic)"
 
 
 def read(page):
@@ -154,6 +166,17 @@ def test_every_pair_the_page_uses_meets_AA_in_every_theme(page):
     found = blocks(style_of(text))
     for name in themes_of(text):
         assert not shortfalls(found[name], PAIRS[page]), (name, shortfalls(found[name], PAIRS[page]))
+    # the pairs the lists leave out, held by the stylesheet (see CHOSEN_ROW)
+    css = re.sub(r"/\*.*?\*/", "", style_of(text), flags=re.S)
+    rules = re.findall(r"([^{}]+)\{([^{}]*)\}", css)
+    for sel, body in rules:
+        if "var(--color-border-strong)" in body:
+            assert not re.search(r"background(?:-color)?:\s*var\(--color-surface-subtle\)", body), sel
+    painted = [sel.strip() for sel, body in rules if re.search(r"background(?:-color)?:\s*var\(--color-accent-subtle\)", body)]
+    if page == APP:
+        assert painted == ["#cmp tbody tr.on td"] and all(rule in css for rule in CHOSEN_ROW), painted
+    else:
+        assert painted == [] and "accent-subtle)" not in css.split(".theme-light")[1].split("}", 1)[1], painted
 
 
 def test_the_contrast_check_catches_a_failing_pair():
@@ -168,9 +191,32 @@ def test_non_colour_tokens_live_on_root_and_colour_only_in_theme_blocks(page):
     css = style_of(read(page))
     root = re.search(r"(?m)^:root\s*\{([^}]*)\}", css).group(1)
     assert "--color-" not in root
-    for prefix in ("--space-", "--font-sans", "--font-mono", "--text-", "--leading-", "--weight-", "--radius-"):
+    for prefix in ("--space-", "--font-display", "--font-sans", "--font-mono", "--text-", "--leading-", "--weight-", "--radius-"):
         assert prefix in root, prefix
     assert all(int(n) * 4 == int(px) for n, px in re.findall(r"--space-(\d+):\s*(\d+)px", root))
+    declared = dict((k, v.strip()) for k, v in re.findall(r"(--[\w-]+)\s*:\s*([^;]+);", re.sub(r"/\*.*?\*/", "", root, flags=re.S)))
+    assert {k: declared.get(k) for k in FONT_TOKENS} == FONT_TOKENS
+    assert {k: declared.get(k) for k in TYPE_SCALE} == TYPE_SCALE
+    # every family a rule names is one of the three tokens, and display type is only ever 200 or 800
+    families = re.findall(r"font-family:\s*([^;}]+)", css)
+    assert all(f.strip() in ("var(--font-display)", "var(--font-sans)", "var(--font-mono)", "inherit") for f in families), families
+    display = [body for body in re.findall(r"\{([^{}]*var\(--font-display\)[^{}]*)\}", css)]
+    assert display
+    for body in display:
+        weights = [declared["--weight-" + w] for w in re.findall(r"var\(--weight-([\w-]+)\)", body)]
+        weights += re.findall(r"font-weight:\s*(\d+)", body)
+        assert weights and set(weights) <= {"200", "800"}, body
+    # the fonts are self-hosted: one local stylesheet, its files and licences in the repo, and no banned font anywhere
+    text = read(page)
+    assert not re.findall(BANNED, text), re.findall(BANNED, text)
+    href = re.findall(r'<link rel="stylesheet" href="([^"]+)">', text[:text.index("</head>")])
+    assert href == [("../" if page == APP else "") + "fonts.css"], href
+    assert (page.parent / href[0]).resolve() == FONTS
+    faces = FONTS.read_text(encoding="utf-8")
+    assert not re.findall(BANNED, faces) and "//" not in re.sub(r"/\*.*?\*/", "", faces, flags=re.S)
+    assert set(re.findall(r'font-family:"([^"]+)"', faces)) == {"Bricolage Grotesque", "IBM Plex Sans", "IBM Plex Mono"}
+    assert all((FONTS.parent / src).is_file() for src in re.findall(r'url\("([^"]+)"\)', faces))
+    assert all((FONTS.parent / "fonts" / lic).is_file() for lic in ("OFL-Bricolage-Grotesque.txt", "OFL-IBM-Plex.txt"))
 
 
 @pytest.mark.parametrize("page", PAGES, ids=IDS)
@@ -218,6 +264,11 @@ SCAN = """() => {
   }
   return { seen, bad: [...new Set(out)] };
 }"""
+LOADED = """() => document.fonts.ready.then(() => [
+  [...new Set([...document.fonts].filter((f) => f.status === 'loaded').map((f) => f.family.replace(/"/g, '')))].sort(),
+  ['800 48px "Bricolage Grotesque"', '400 16px "IBM Plex Sans"', '600 16px "IBM Plex Sans"', '400 13px "IBM Plex Mono"']
+    .every((f) => document.fonts.check(f))])"""
+FAMILIES = ["Bricolage Grotesque", "IBM Plex Mono", "IBM Plex Sans"]
 THEME = "() => (document.documentElement.className.match(/(?:^|\\s)theme-(\\S+)/) || [])[1]"
 BASE = "http://ipo.test/"
 
@@ -238,8 +289,8 @@ def browser():
 
 def serve(route):
     url = route.request.url
-    if not url.startswith(BASE):                  # the web fonts: an empty stylesheet, so nothing leaves the machine
-        return route.fulfill(status=200, body="", content_type="text/css")
+    if not url.startswith(BASE):                  # nothing else is requested; if it were, nothing leaves the machine
+        return route.fulfill(status=200, body="", content_type="text/plain")
     f = DOCS / url[len(BASE):].split("?")[0].split("#")[0]
     f = f / "index.html" if f.is_dir() else f
     if not f.is_file():
@@ -339,6 +390,7 @@ def test_every_visible_text_meets_AA_in_the_app(browser, theme):
     scans["check, failing"] = page.evaluate(SCAN)
     for name, scan in scans.items():
         assert scan["seen"] > 40 and not scan["bad"], (theme, name, scan["bad"])
+    assert page.evaluate(LOADED) == [FAMILIES, True]                 # the self-hosted fonts, not a fallback
     assert not page.errors, page.errors
     ctx.close()
 
@@ -349,6 +401,7 @@ def test_every_visible_text_meets_AA_in_the_writeup(browser, theme):
     assert page.evaluate(THEME) == theme
     scan = page.evaluate(SCAN)
     assert scan["seen"] > 40 and not scan["bad"], scan["bad"]
+    assert page.evaluate(LOADED) == [FAMILIES, True]
     assert not page.errors, page.errors
     ctx.close()
 

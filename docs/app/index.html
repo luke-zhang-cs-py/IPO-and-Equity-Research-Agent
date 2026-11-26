@@ -12,12 +12,10 @@
 try { var saved = localStorage.getItem("theme"); if (/^[a-z]+$/.test(saved)) document.documentElement.classList.replace("theme-dark", "theme-" + saved); } catch (e) { /* storage blocked */ }
 document.documentElement.classList.add("js");
 </script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../fonts.css">
 <style>
 /* ======================================================================
-   DESIGN TOKENS. A trading terminal, dark by default, with a light desk.
+   DESIGN TOKENS. A trading terminal in moss with a coral accent (DESIGN.md), dark by default, with a light desk.
    1. Theme-independent tokens (spacing, type, shape, motion) live on :root.
    2. Colour tokens live in one block per theme, keyed on a class on <html>.
       class="theme-dark" is in the markup, so the page is themed with no JavaScript.
@@ -31,13 +29,17 @@ document.documentElement.classList.add("js");
   /* spacing: --space-N is N x 4px */
   --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 20px; --space-6: 24px; --space-7: 28px;
   --space-9: 36px; --space-12: 48px;
-  /* typography */
-  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
-  --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --text-3xs: .64rem; --text-2xs: .68rem; --text-xs: .72rem; --text-sm: .76rem; --text-md: .8rem; --text-lg: .86rem;
-  --text-body: 14px; --text-xl: 1rem; --text-2xl: 1.28rem; --text-3xl: clamp(1.4rem, 1.1rem + 1.4vw, 2.1rem); --text-4xl: 2.3rem;
+  /* typography: self-hosted (../fonts.css). Display type is 200 or 800 only; Plex Sans and Mono come in 400 and 600,
+     so the mono "bold" and "heavy" are its 600. The 3x scale (base, xl, display) is for headings; the dense
+     terminal keeps its small steps for labels and readouts. */
+  --font-display: "Bricolage Grotesque", sans-serif;
+  --font-sans: "IBM Plex Sans", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+  --text-sm: 13px; --text-base: 16px; --text-xl: 48px; --text-display: clamp(64px, 14vw, 144px);
+  --text-3xs: .64rem; --text-2xs: .68rem; --text-xs: .72rem; --text-md: .8rem; --text-lg: .86rem;
+  --text-body: 14px; --text-2xl: 1.28rem; --text-3xl: clamp(2rem, 1rem + 3.4vw, var(--text-xl)); --text-4xl: 2.3rem;
   --leading-none: 1; --leading-tight: 1.1; --leading-snug: 1.25; --leading-normal: 1.5; --leading-body: 1.55;
-  --weight-medium: 500; --weight-semibold: 600; --weight-bold: 700; --weight-heavy: 800;
+  --weight-medium: 400; --weight-semibold: 600; --weight-bold: 600; --weight-heavy: 600; --weight-display: 800; --weight-light: 200;
   --tracking-tight: -.02em; --tracking-snug: .02em; --tracking-wide: .04em; --tracking-wider: .06em; --tracking-caps: .08em; --tracking-widest: .1em;
   /* shape and motion */
   --radius-2xs: 2px; --radius-xs: 3px; --radius-sm: 5px; --radius-md: 6px; --radius-lg: 8px; --radius-full: 50%;
@@ -48,76 +50,76 @@ document.documentElement.classList.add("js");
    unknown one; any .theme-* block wins over it. */
 :where(:root), .theme-dark {
   color-scheme: dark;
-  --color-bg: #05080b;
-  --color-surface: #0a0f14;           /* cards, tabs, tiles */
-  --color-surface-subtle: #0e151c;    /* inputs, tracks, hovered rows */
-  --color-border: #1a2632;
-  --color-border-strong: #4f6b80;     /* form fields, tabs, buttons: 3:1 on bg and both surfaces */
-  --color-text-primary: #d9e5ec;
-  --color-text-strong: #f1f7fa;       /* headings and the figures that matter */
-  --color-text-muted: #8597a4;
-  --color-text-subtle: #748a9a;       /* column heads, tile labels, footer */
-  --color-accent: #22d3ee;
-  --color-accent-hover: #67e8f9;
-  --color-accent-subtle: #0c1f25;     /* the chosen row */
-  --color-text-on-accent: #031015;
-  --color-text-on-accent-muted: #0b4450;
-  --color-danger: #f87171;
-  --color-warning: #fbbf24;           /* rule breaches and failed-check details (text) */
-  --color-warning-fill: #fbbf24;      /* the TEMPLATE chip */
-  --color-text-on-warning: #031015;
-  --color-code: #a8f0c6;              /* the KEY NUMBERS block */
+  --color-bg: #181B10;
+  --color-surface: #212419;           /* cards, tabs, tiles */
+  --color-surface-subtle: #2A2D20;    /* inputs, tracks, hovered rows */
+  --color-border: #363A2C;
+  --color-border-strong: #6C7160;     /* form fields, tabs, buttons: 3:1 on bg and surface, so fields sit on bg */
+  --color-text-primary: #E7E9E1;
+  --color-text-strong: #F3F4EE;       /* headings and the figures that matter */
+  --color-text-muted: #B5B9AC;
+  --color-text-subtle: #A2A797;       /* column heads, tile labels, footer */
+  --color-accent: #E29D91;
+  --color-accent-hover: #F4B6AB;
+  --color-accent-subtle: #452B27;     /* the chosen row */
+  --color-text-on-accent: #271512;
+  --color-text-on-accent-muted: #59302A;
+  --color-danger: #DF7F78;
+  --color-warning: #D7BA7D;           /* rule breaches and failed-check details (text) */
+  --color-warning-fill: #D7BA7D;      /* the TEMPLATE chip */
+  --color-text-on-warning: #211909;
+  --color-code: #C6D4B1;              /* the KEY NUMBERS block */
   /* chart and market roles */
-  --color-gain: #34d399;              /* bull, up, overweight */
-  --color-loss: #f87171;              /* bear, down, underweight, the stop */
-  --color-series-base: #22d3ee;
-  --color-series-pwv: #fbbf24;        /* the probability-weighted path */
-  --color-series-neutral: #556876;    /* histogram bars between the stop and today, the off LED */
-  --color-band-outer: rgba(34, 211, 238, .10);
-  --color-band-inner: rgba(34, 211, 238, .20);
-  --color-band-key: rgba(34, 211, 238, .22);
+  --color-gain: #95C696;              /* bull, up, overweight */
+  --color-loss: #DF7F78;              /* bear, down, underweight, the stop */
+  --color-series-base: #C2C6B8;
+  --color-series-pwv: #D7BA7D;        /* the probability-weighted path */
+  --color-series-neutral: #737768;    /* histogram bars between the stop and today, the off LED */
+  --color-band-outer: rgba(194, 198, 184, .10);
+  --color-band-inner: rgba(194, 198, 184, .18);
+  --color-band-key: rgba(194, 198, 184, .24);
   /* surfaces over the page */
-  --color-overlay: rgba(5, 8, 11, .92);   /* the sticky status bar and the chart readout */
-  --color-grid: rgba(34, 211, 238, .045);
-  --color-scanline: rgba(255, 255, 255, .018);
-  --shadow-glow: 0 0 12px rgba(34, 211, 238, .35);
-  --shadow-led: 0 0 8px #34d399;
-  --filter-glow-pwv: drop-shadow(0 0 4px rgba(251, 191, 36, .6));
-  --filter-glow-bind: drop-shadow(0 0 4px rgba(34, 211, 238, .6));
+  --color-overlay: rgba(24, 27, 16, .92);   /* the sticky status bar and the chart readout */
+  --color-grid: rgba(181, 185, 172, .045);
+  --color-scanline: rgba(231, 233, 225, .015);
+  --shadow-glow: none;
+  --shadow-led: none;
+  --filter-glow-pwv: none;
+  --filter-glow-bind: none;
   --icon-sun: inline; --icon-moon: none;   /* the toggle names where it will take you */
 }
 .theme-light {
   color-scheme: light;
-  --color-bg: #f3f6f8;
-  --color-surface: #ffffff;
-  --color-surface-subtle: #e9eff2;
-  --color-border: #d0dbe1;
-  --color-border-strong: #748694;
-  --color-text-primary: #1a2731;
-  --color-text-strong: #0b1419;
-  --color-text-muted: #475966;
-  --color-text-subtle: #56687a;
-  --color-accent: #0e7490;
-  --color-accent-hover: #155e75;
-  --color-accent-subtle: #dcf1f6;
-  --color-text-on-accent: #ffffff;
-  --color-text-on-accent-muted: #d9f4fa;
-  --color-danger: #b91c1c;
-  --color-warning: #8f5300;
-  --color-warning-fill: #fbbf24;
-  --color-text-on-warning: #031015;
-  --color-code: #0f6b3f;
-  --color-gain: #047857;
-  --color-loss: #b91c1c;
-  --color-series-base: #0e7490;
-  --color-series-pwv: #8f5300;
-  --color-series-neutral: #748694;
-  --color-band-outer: rgba(14, 116, 144, .10);
-  --color-band-inner: rgba(14, 116, 144, .20);
-  --color-band-key: rgba(14, 116, 144, .22);
-  --color-overlay: rgba(243, 246, 248, .92);
-  --color-grid: rgba(14, 116, 144, .06);
-  --color-scanline: rgba(11, 20, 25, .018);
+  --color-bg: #F5F7EF;
+  --color-surface: #FBFCF8;
+  --color-surface-subtle: #EBEEE4;
+  --color-border: #D9DCD1;
+  --color-border-strong: #8A8F7D;
+  --color-text-primary: #25281E;
+  --color-text-strong: #13150F;
+  --color-text-muted: #595D4C;
+  --color-text-subtle: #676B5A;
+  --color-accent: #94554B;
+  --color-accent-hover: #794037;
+  --color-accent-subtle: #FBDDD7;
+  --color-text-on-accent: #FFF8F6;
+  --color-text-on-accent-muted: #FBE1DC;
+  --color-danger: #A83634;
+  --color-warning: #7E5D1D;
+  --color-warning-fill: #E2C382;
+  --color-text-on-warning: #2A2009;
+  --color-code: #4E5B36;
+  --color-gain: #3F6A41;
+  --color-loss: #A83634;
+  --color-series-base: #626558;
+  --color-series-pwv: #7E5D1D;
+  --color-series-neutral: #8A8E80;
+  --color-band-outer: rgba(98, 101, 88, .10);
+  --color-band-inner: rgba(98, 101, 88, .18);
+  --color-band-key: rgba(98, 101, 88, .24);
+  --color-overlay: rgba(245, 247, 239, .92);
+  --color-grid: rgba(89, 93, 76, .06);
+  --color-scanline: rgba(19, 21, 15, .015);
   --shadow-glow: none;
   --shadow-led: none;
   --filter-glow-pwv: none;
@@ -140,7 +142,7 @@ a:hover { color: var(--color-accent-hover); }
 /* status bar and ticker */
 .status { position: sticky; top: 0; z-index: 20; background: var(--color-overlay); backdrop-filter: blur(6px); border-bottom: 1px solid var(--color-border); }
 .status .in { max-width: 1240px; margin: 0 auto; padding: var(--space-2) var(--space-4); display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); align-items: center; font: var(--weight-medium) var(--text-sm) var(--font-mono); letter-spacing: var(--tracking-wider); text-transform: uppercase; color: var(--color-text-muted); }
-.brand { color: var(--color-text-strong); font-weight: var(--weight-heavy); letter-spacing: var(--tracking-widest); }
+.brand { color: var(--color-text-strong); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-widest); }
 .brand b { color: var(--color-accent); text-shadow: var(--shadow-glow); }
 .cursor { display: inline-block; width: .55em; height: 1em; background: var(--color-accent); vertical-align: -2px; margin-left: var(--space-1); animation: blink var(--duration-blink) steps(1) infinite; }
 @keyframes blink { 50% { opacity: 0; } }
@@ -160,7 +162,7 @@ html:not(.js) .theme-btn { display: none; }     /* no script, no toggle: the pag
 
 .wrap { max-width: 1240px; margin: 0 auto; padding-inline: var(--space-4); padding-block: var(--space-6) var(--space-12); }
 .head { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-7); align-items: flex-end; justify-content: space-between; margin-bottom: var(--space-5); }
-h1 { font: var(--weight-heavy) var(--text-3xl)/var(--leading-tight) var(--font-mono); letter-spacing: var(--tracking-tight); margin: 0 0 var(--space-2); color: var(--color-text-strong); text-wrap: balance; }
+h1 { font: var(--weight-display) var(--text-3xl)/var(--leading-tight) var(--font-display); letter-spacing: var(--tracking-tight); margin: 0 0 var(--space-2); color: var(--color-text-strong); text-wrap: balance; }
 h1 em { font-style: normal; color: var(--color-accent); text-shadow: var(--shadow-glow); }
 .lede { color: var(--color-text-muted); margin: 0; max-width: 68ch; }
 .tabs { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--color-border-strong); border-radius: var(--radius-md); overflow: hidden; }
@@ -177,14 +179,14 @@ h1 em { font-style: normal; color: var(--color-accent); text-shadow: var(--shado
 .card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-4); min-width: 0; position: relative; }
 .card::before { content: ""; position: absolute; top: -1px; left: var(--space-4); width: 42px; height: 2px; background: var(--color-accent); box-shadow: var(--shadow-glow); }
 .ph { display: flex; justify-content: space-between; gap: var(--space-3); align-items: baseline; margin: 0 0 var(--space-3); }
-h2 { font: var(--weight-bold) var(--text-md) var(--font-mono); letter-spacing: var(--tracking-widest); text-transform: uppercase; color: var(--color-text-primary); margin: 0; }
-h2 i { font-style: normal; color: var(--color-accent); margin-right: var(--space-2); }
+h2 { font: var(--weight-display) var(--text-base) var(--font-display); letter-spacing: var(--tracking-snug); text-transform: uppercase; color: var(--color-text-primary); margin: 0; }
+h2 i { font: var(--weight-semibold) var(--text-md) var(--font-mono); font-style: normal; color: var(--color-accent); margin-right: var(--space-2); }
 .ph small { font: var(--weight-medium) var(--text-xs) var(--font-mono); color: var(--color-text-subtle); letter-spacing: var(--tracking-wider); text-transform: uppercase; }
 .stack { display: grid; gap: var(--space-4); min-width: 0; }
 .stack.top { align-self: start; }
 
 label { display: flex; flex-direction: column; gap: var(--space-1); font: var(--weight-semibold) var(--text-2xs) var(--font-mono); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--color-text-muted); }
-input, select, textarea { font-size: var(--text-lg); color: var(--color-text-strong); background: var(--color-surface-subtle); border: 1px solid var(--color-border-strong); border-radius: var(--radius-sm); padding: var(--space-2) var(--space-2); min-width: 0; }
+input, select, textarea { font-size: var(--text-lg); color: var(--color-text-strong); background: var(--color-bg); border: 1px solid var(--color-border-strong); border-radius: var(--radius-sm); padding: var(--space-2) var(--space-2); min-width: 0; }
 input:focus, select:focus, textarea:focus, button:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 1px; }
 input[type=range] { padding: 0; accent-color: var(--color-accent); background: none; border: 0; }
 textarea { width: 100%; min-height: 380px; font: var(--text-sm)/var(--leading-normal) var(--font-mono); color: var(--color-code); }
@@ -195,7 +197,7 @@ table { border-collapse: collapse; width: 100%; font-size: var(--text-md); font-
 th, td { text-align: left; padding: var(--space-1) var(--space-2); border-bottom: 1px solid var(--color-border); white-space: nowrap; }
 th { color: var(--color-text-subtle); font-weight: var(--weight-semibold); font-size: var(--text-2xs); letter-spacing: var(--tracking-caps); text-transform: uppercase; }
 td input { width: 100%; min-width: 60px; padding: var(--space-1) var(--space-2); }
-.btn { font: var(--weight-bold) var(--text-sm) var(--font-mono); letter-spacing: var(--tracking-wider); text-transform: uppercase; border: 1px solid var(--color-border-strong); background: var(--color-surface-subtle); color: var(--color-text-primary); border-radius: var(--radius-sm); padding: var(--space-2) var(--space-3); cursor: pointer; }
+.btn { font: var(--weight-bold) var(--text-sm) var(--font-mono); letter-spacing: var(--tracking-wider); text-transform: uppercase; border: 1px solid var(--color-border-strong); background: var(--color-bg); color: var(--color-text-primary); border-radius: var(--radius-sm); padding: var(--space-2) var(--space-3); cursor: pointer; }
 .btn:hover { border-color: var(--color-accent); color: var(--color-accent); }
 .btn.go { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-text-on-accent); }
 .btn.go:hover { background: var(--color-accent-hover); border-color: var(--color-accent-hover); color: var(--color-text-on-accent); box-shadow: var(--shadow-glow); }
@@ -215,9 +217,9 @@ td input { width: 100%; min-width: 60px; padding: var(--space-1) var(--space-2);
 .k { display: block; font-size: var(--text-3xs); letter-spacing: var(--tracking-widest); text-transform: uppercase; color: var(--color-text-subtle); }
 .v { display: block; font-size: var(--text-2xl); font-weight: var(--weight-heavy); color: var(--color-text-strong); font-variant-numeric: tabular-nums; line-height: var(--leading-snug); }
 .v small { font-size: var(--text-xs); font-weight: var(--weight-medium); color: var(--color-text-muted); }
-.v.up { color: var(--color-gain); } .v.dn { color: var(--color-loss); } .v.hi { color: var(--color-accent); text-shadow: var(--shadow-glow); }
+.v.up { color: var(--color-gain); } .v.dn { color: var(--color-loss); } .v.hi { color: var(--color-series-pwv); }   /* the PWV tile, in the colour of its line on the chart */
 .big { font: var(--weight-heavy) var(--text-4xl)/var(--leading-none) var(--font-mono); color: var(--color-accent); text-shadow: var(--shadow-glow); font-variant-numeric: tabular-nums; }
-.big .unit { font-size: var(--text-xl); color: var(--color-text-muted); text-shadow: none; }
+.big .unit { font-size: var(--text-base); color: var(--color-text-muted); text-shadow: none; }
 .err { color: var(--color-danger); font: var(--weight-semibold) var(--text-lg) var(--font-mono); }
 
 /* charts */
@@ -250,7 +252,7 @@ td input { width: 100%; min-width: 60px; padding: var(--space-1) var(--space-2);
 .checks .ok::before { content: "[PASS]"; color: var(--color-gain); } .checks .no::before { content: "[FAIL]"; color: var(--color-loss); }
 .checks .no { color: var(--color-text-strong); }
 .checks small { grid-column: 2; color: var(--color-warning); }
-.score { font: var(--weight-heavy) var(--text-xl) var(--font-mono); margin-bottom: var(--space-3); letter-spacing: var(--tracking-snug); color: var(--color-gain); }
+.score { font: var(--weight-heavy) var(--text-base) var(--font-mono); margin-bottom: var(--space-3); letter-spacing: var(--tracking-snug); color: var(--color-gain); }
 .score.bad { color: var(--color-loss); }
 
 .cmp-bar { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: flex-end; margin: 0 0 var(--space-3); }
@@ -262,6 +264,8 @@ td input { width: 100%; min-width: 60px; padding: var(--space-1) var(--space-2);
 #cmp tbody tr { cursor: pointer; }
 #cmp tbody tr:hover td { background: var(--color-surface-subtle); }
 #cmp tbody tr.on td { background: var(--color-accent-subtle); }
+#cmp tbody tr.on .rank, #cmp tbody tr.on .x { color: var(--color-text-muted); }   /* subtle text is under 4.5:1 on the chosen row */
+#cmp tbody tr.on .pick:hover { color: var(--color-accent-hover); }
 #cmp tbody tr.on td:first-child { box-shadow: inset 2px 0 0 var(--color-accent); }
 #cmp .rank { color: var(--color-text-subtle); font-weight: var(--weight-heavy); }
 #cmp .x { all: unset; cursor: pointer; color: var(--color-text-subtle); padding: 0 var(--space-1); }
@@ -568,7 +572,7 @@ td input { width: 100%; min-width: 60px; padding: var(--space-1) var(--space-2);
       .map(([c, v, name]) => ({ c, v, name, y: Y(v) })).sort((a, b) => a.y - b.y);
     for (let i = 1; i < labels.length; i++) if (labels[i].y - labels[i - 1].y < 14) labels[i].y = labels[i - 1].y + 14;
     const over = labels.at(-1).y - (m.t + ph); if (over > 0) for (const l of labels) l.y -= over;
-    for (const l of labels) s += '<text x="' + (m.l + pw + 8) + '" y="' + (l.y + 4) + '" font-size="10.5" font-weight="700" fill="' + C[l.c] + '">' + l.name + " $" + fmt(l.v) + "</text>";
+    for (const l of labels) s += '<text x="' + (m.l + pw + 8) + '" y="' + (l.y + 4) + '" font-size="10.5" font-weight="600" fill="' + C[l.c] + '">' + l.name + " $" + fmt(l.v) + "</text>";
     if (hover !== null) s += '<line x1="' + xs[hover] + '" x2="' + xs[hover] + '" y1="' + m.t + '" y2="' + (m.t + ph) + '" stroke="' + C.white + '" stroke-opacity=".5"/>' +
       ["bull", "base", "bear"].map((c) => '<circle cx="' + xs[hover] + '" cy="' + Y(run.scenario[c][hover]) + '" r="3" fill="' + C[c] + '"/>').join("") + '<circle cx="' + xs[hover] + '" cy="' + Y(run.weighted[hover]) + '" r="3.5" fill="' + C.pwv + '"/>';
     s += '<rect x="' + m.l + '" y="' + m.t + '" width="' + pw + '" height="' + ph + '" fill="transparent" data-hit="1"/>';
@@ -602,7 +606,7 @@ td input { width: 100%; min-width: 60px; padding: var(--space-1) var(--space-2);
     marks.sort((p, q) => p[1] - q[1]).forEach(([name, v, col]) => {
       const x = X(v), prev = placed.at(-1), row = prev && x - prev.x < 38 && prev.row === 0 ? 1 : 0; placed.push({ x, row });
       s += '<line x1="' + x + '" x2="' + x + '" y1="' + (m.t - 4 - row * 12) + '" y2="' + (m.t + ph) + '" stroke="' + col + '" stroke-dasharray="3 3"/><text x="' + x + '" y="' + (m.t - 8 - row * 12) +
-        '" text-anchor="' + (x > W - 60 ? "end" : x < 60 ? "start" : "middle") + '" font-size="10" font-weight="700" fill="' + col + '">' + name + "</text>";
+        '" text-anchor="' + (x > W - 60 ? "end" : x < 60 ? "start" : "middle") + '" font-size="10" font-weight="600" fill="' + col + '">' + name + "</text>";
     });
     for (const v of ticks(h.lo, hiX, 5)) s += '<text x="' + X(v) + '" y="' + (H - 10) + '" text-anchor="middle" font-size="10" fill="' + C.muted + '">$' + fmt(v, 0) + "</text>";
     el.innerHTML = svg(W, H, s, "Distribution of ending prices: " + Math.round(100 * run.p_end_above_price) + "% end above today's price") +
@@ -622,7 +626,7 @@ td input { width: 100%; min-width: 60px; padding: var(--space-1) var(--space-2);
     s += zone(lo, UW, "UNDERWEIGHT", C.bear) + zone(UW, OW, "EQUAL-WEIGHT", C.muted) + zone(OW, hi, "OVERWEIGHT", C.bull);
     const x = X(er), col = run.rating === "Overweight" ? C.bull : run.rating === "Underweight" ? C.bear : C.white;
     s += '<path d="M' + x + "," + (y + 16) + "l-7,12h14z" + '" fill="' + col + '"/><line x1="' + x + '" x2="' + x + '" y1="' + (y - 2) + '" y2="' + (y + 16) + '" stroke="' + col + '" stroke-width="2"/>' +
-      '<text x="' + Math.max(40, Math.min(W - 40, x)) + '" y="' + (y + 50) + '" text-anchor="middle" font-size="12" font-weight="800" fill="' + col + '">' + pct(er) + "</text>";
+      '<text x="' + Math.max(40, Math.min(W - 40, x)) + '" y="' + (y + 50) + '" text-anchor="middle" font-size="12" font-weight="600" fill="' + col + '">' + pct(er) + "</text>";
     el.innerHTML = svg(W, H, s, "Expected return " + pct(er) + ": " + run.rating);
     const conv = $("pj-conv").value;
     $("gauge-note").innerHTML = "Expected return " + pct(er) + " with " + conv.toLowerCase() + " conviction → <b>" + run.rating + "</b>." +

@@ -12,9 +12,10 @@
 try { var saved = localStorage.getItem("theme"); if (/^[a-z]+$/.test(saved)) document.documentElement.classList.replace("theme-dark", "theme-" + saved); } catch (e) { /* storage blocked */ }
 document.documentElement.classList.add("js");
 </script>
+<link rel="stylesheet" href="fonts.css">
 <style>
 /* ======================================================================
-   DESIGN TOKENS. The page's two existing palettes (teal on paper, teal on charcoal), now dark by default.
+   DESIGN TOKENS. Moss with a coral accent, from DESIGN.md and its palettes.json; dark by default.
    1. Theme-independent tokens (spacing, type, shape) live on :root.
    2. Colour tokens live in one block per theme, keyed on a class on <html>.
       class="theme-dark" is in the markup, so the page is themed with no JavaScript.
@@ -26,13 +27,15 @@ document.documentElement.classList.add("js");
 :root {
   /* spacing: --space-N is N x 4px */
   --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 20px; --space-9: 36px; --space-10: 40px; --space-14: 56px;
-  /* typography */
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
-  --text-body: 16px; --text-xs: .85rem; --text-sm: .88rem; --text-md: .9rem; --text-lg: .92rem; --text-xl: 1.1rem; --text-2xl: 1.25rem; --text-3xl: 2rem;
-  --leading-tight: 1.15; --leading-body: 1.6;
-  --weight-semibold: 600; --weight-bold: 700;
-  --tracking-tight: -.015em;
+  /* typography: self-hosted (fonts.css); the scale steps 3x; display type is 200 or 800 only */
+  --font-display: "Bricolage Grotesque", sans-serif;
+  --font-sans: "IBM Plex Sans", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+  --text-sm: 13px; --text-base: 16px; --text-xl: 48px; --text-display: clamp(64px, 14vw, 144px);
+  --text-body: var(--text-base); --text-xs: .85rem; --text-md: .9rem; --text-lg: .92rem; --text-lede: 1.125rem;
+  --leading-none: 1; --leading-tight: 1.15; --leading-body: 1.6;
+  --weight-light: 200; --weight-semibold: 600; --weight-bold: 600; --weight-heavy: 800;
+  --tracking-tight: -.015em; --tracking-tighter: -.03em;
   /* shape */
   --radius-sm: 4px; --radius-md: 8px; --radius-lg: 10px;
 }
@@ -41,36 +44,36 @@ document.documentElement.classList.add("js");
    unknown one; any .theme-* block wins over it. */
 :where(:root), .theme-dark {
   color-scheme: dark;
-  --color-bg: #111416;
-  --color-surface: #181c1f;
-  --color-surface-subtle: #1f2528;   /* code */
-  --color-border: #2a3135;           /* table rules, the GIF's frame */
-  --color-border-strong: #6b767e;    /* buttons: 3:1 on bg and both surfaces */
-  --color-text-primary: #e9edef;
-  --color-text-muted: #9aa4ac;
-  --color-text-subtle: #8f9aa2;
-  --color-accent: #2dd4bf;
-  --color-accent-hover: #5eead4;
-  --color-accent-subtle: #12302d;
-  --color-text-on-accent: #04201d;
-  --color-danger: #f87171;
+  --color-bg: #181B10;
+  --color-surface: #212419;
+  --color-surface-subtle: #2A2D20;   /* code */
+  --color-border: #363A2C;           /* table rules, the GIF's frame */
+  --color-border-strong: #6C7160;    /* buttons: 3:1 on bg and both surfaces */
+  --color-text-primary: #E7E9E1;
+  --color-text-muted: #B5B9AC;
+  --color-text-subtle: #A2A797;
+  --color-accent: #E29D91;
+  --color-accent-hover: #F4B6AB;
+  --color-accent-subtle: #452B27;
+  --color-text-on-accent: #271512;
+  --color-danger: #DF7F78;
   --icon-sun: inline; --icon-moon: none;   /* the toggle names where it will take you */
 }
 .theme-light {
   color-scheme: light;
-  --color-bg: #f7f8f6;
-  --color-surface: #ffffff;
-  --color-surface-subtle: #eef2f1;
-  --color-border: #d9dedf;
-  --color-border-strong: #7b858d;
-  --color-text-primary: #14181c;
-  --color-text-muted: #5b646d;
-  --color-text-subtle: #5a6570;
-  --color-accent: #0f766e;
-  --color-accent-hover: #115e59;
-  --color-accent-subtle: #dcefec;
-  --color-text-on-accent: #ffffff;
-  --color-danger: #b3261e;
+  --color-bg: #F5F7EF;
+  --color-surface: #FBFCF8;
+  --color-surface-subtle: #EBEEE4;
+  --color-border: #D9DCD1;
+  --color-border-strong: #8A8F7D;
+  --color-text-primary: #25281E;
+  --color-text-muted: #595D4C;
+  --color-text-subtle: #676B5A;
+  --color-accent: #94554B;
+  --color-accent-hover: #794037;
+  --color-accent-subtle: #FBDDD7;
+  --color-text-on-accent: #FFF8F6;
+  --color-danger: #A83634;
   --icon-sun: none; --icon-moon: inline;
 }
 
@@ -83,10 +86,11 @@ main { max-width: 760px; margin: 0 auto; padding: var(--space-9) var(--space-5) 
 .theme-btn:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
 .theme-btn .i-sun { display: var(--icon-sun); } .theme-btn .i-moon { display: var(--icon-moon); }
 html:not(.js) .top { display: none; }     /* no script, no toggle: the page stays dark */
-h1 { font-size: var(--text-3xl); line-height: var(--leading-tight); margin: 0 0 var(--space-2); letter-spacing: var(--tracking-tight); }
-h2 { font-size: var(--text-2xl); margin: var(--space-9) 0 var(--space-2); }
+h1, h2 { font-family: var(--font-display); font-weight: var(--weight-heavy); }
+h1 { font-size: var(--text-display); line-height: var(--leading-none); margin: 0 0 var(--space-4); letter-spacing: var(--tracking-tighter); }
+h2 { font-size: var(--text-xl); line-height: var(--leading-tight); margin: var(--space-14) 0 var(--space-4); letter-spacing: var(--tracking-tight); }
 p, li { max-width: 68ch; }
-.lede { font-size: var(--text-xl); color: var(--color-text-muted); margin: 0 0 var(--space-5); }
+.lede { font-size: var(--text-lede); color: var(--color-text-muted); margin: 0 0 var(--space-5); }
 .cta { display: inline-block; background: var(--color-text-primary); color: var(--color-bg); text-decoration: none; font-weight: var(--weight-bold); padding: var(--space-2) var(--space-4); border-radius: var(--radius-md); margin-right: var(--space-2); }
 .cta.ghost { background: transparent; color: var(--color-text-primary); border: 1px solid var(--color-text-primary); }
 img { max-width: 100%; height: auto; border: 1px solid var(--color-border); border-radius: var(--radius-lg); margin: var(--space-5) 0 var(--space-1); }
@@ -95,13 +99,14 @@ img { max-width: 100%; height: auto; border: 1px solid var(--color-border); bord
 table { border-collapse: collapse; width: 100%; font-size: var(--text-lg); font-variant-numeric: tabular-nums; margin: var(--space-2) 0; }
 th, td { text-align: left; padding: var(--space-2) var(--space-2); border-bottom: 1px solid var(--color-border); vertical-align: top; }
 th { color: var(--color-text-muted); font-weight: var(--weight-semibold); }
+td b { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }   /* the measured figures */
 code { background: var(--color-surface-subtle); padding: 1px var(--space-1); border-radius: var(--radius-sm); font-size: .9em; }
 code, pre { font-family: var(--font-mono); }
 pre { background: var(--color-surface-subtle); padding: var(--space-3); border-radius: var(--radius-md); overflow-x: auto; font-size: var(--text-xs); }
 a { color: var(--color-accent); }
 a:hover { color: var(--color-accent-hover); }
 .cta:hover { color: var(--color-bg); } .cta.ghost:hover { color: var(--color-accent); border-color: var(--color-accent); }
-.foot { color: var(--color-text-muted); font-size: var(--text-sm); margin-top: var(--space-10); }
+.foot { color: var(--color-text-muted); font: var(--text-sm) var(--font-mono); margin-top: var(--space-10); }
 </style>
 </head>
 <body>
