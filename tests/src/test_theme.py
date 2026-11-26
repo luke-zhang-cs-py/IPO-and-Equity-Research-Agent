@@ -9,6 +9,7 @@ the themes in THEMES. These tests hold that structure and WCAG AA:
   read from the tokens, so pairs a DOM scan never sees (a selected row, a failed check, a hover) are covered too;
 - no component rule, inline style or chart code carries a raw colour;
 - the type is DESIGN.md's: the three self-hosted families from docs/fonts.css, the 3x scale, no banned font anywhere;
+- the layout is DESIGN.md's: an 8px rhythm, radius 4px at most, no shadows or glows, nothing centred;
 - with JavaScript off the page is dark; the toggle switches and remembers; an unknown saved theme falls back to dark;
 - a scan of every visible text node (chart labels included) meets AA in both themes, with the web fonts loaded.
 
@@ -194,6 +195,21 @@ def test_non_colour_tokens_live_on_root_and_colour_only_in_theme_blocks(page):
     for prefix in ("--space-", "--font-display", "--font-sans", "--font-mono", "--text-", "--leading-", "--weight-", "--radius-"):
         assert prefix in root, prefix
     assert all(int(n) * 4 == int(px) for n, px in re.findall(r"--space-(\d+):\s*(\d+)px", root))
+    # DESIGN.md's layout: an 8px rhythm (even N, and only defined steps), radius 4px at most, no shadow or glow, nothing
+    # centred. The one exception is the app's 50% LED dot; the inset 2px bars mark a chosen row and are not shadows.
+    spaces = set(re.findall(r"--space-(\d+):", root))
+    assert spaces and all(int(n) % 2 == 0 for n in spaces), sorted(spaces)
+    assert set(re.findall(r"var\(--space-(\d+)\)", css)) <= spaces, sorted(set(re.findall(r"var\(--space-(\d+)\)", css)) - spaces)
+    radii = dict(re.findall(r"--radius-([\w-]+):\s*([^;]+);", root))
+    assert all(v == "50%" or int(v.rstrip("px")) <= 4 for v in radii.values()), radii
+    for sel, body in re.findall(r"([^{}]+)\{([^{}]*)\}", re.sub(r"/\*.*?\*/", "", css, flags=re.S)):
+        sel = sel.strip()
+        if "var(--radius-full)" in body:
+            assert sel == ".led", sel
+        assert all(1 <= int(px) <= 4 for px in re.findall(r"border-radius:\s*(\d+)px", body)), sel
+        assert not re.search(r"text-shadow|drop-shadow|(?<!backdrop-)filter:", body), sel
+        assert all(s.startswith("inset 2px 0 0") for s in re.findall(r"box-shadow:\s*([^;]+)", body)), sel
+        assert "text-align: center" not in body, sel
     declared = dict((k, v.strip()) for k, v in re.findall(r"(--[\w-]+)\s*:\s*([^;]+);", re.sub(r"/\*.*?\*/", "", root, flags=re.S)))
     assert {k: declared.get(k) for k in FONT_TOKENS} == FONT_TOKENS
     assert {k: declared.get(k) for k in TYPE_SCALE} == TYPE_SCALE
