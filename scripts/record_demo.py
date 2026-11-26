@@ -1,9 +1,11 @@
 """Re-record docs/demo.gif from docs/app/: the projection chart, sizing as the stop moves, then the memo checks catching two errors.
 
-    python scripts/record_demo.py
+    python scripts/record_demo.py                       # from the local docs/app/
+    python scripts/record_demo.py https://luke-zhang-cs-py.github.io/IPO-and-Equity-Research-Agent/app/   # from the site
 """
 import io
 import pathlib
+import sys
 
 from PIL import Image
 from playwright.sync_api import sync_playwright
@@ -13,12 +15,15 @@ OUT = ROOT / "docs" / "demo.gif"
 W, H = 960, 600
 
 
-def main():
+def main(url=None):
     frames, durations = [], []
     with sync_playwright() as pw:
         b = pw.chromium.launch()
         pg = b.new_page(viewport={"width": W, "height": H}, device_scale_factor=1, color_scheme="dark")
-        pg.goto((ROOT / "docs/app/index.html").as_uri())
+        pg.goto(url or (ROOT / "docs/app/index.html").as_uri())
+        # ready: the chart drawn, the NYSE list loaded (a fetch, slower from the site) and the web fonts in
+        pg.wait_for_function("() => document.querySelector('#fan svg') && document.querySelectorAll('#nyse-list li').length > 0")
+        pg.evaluate("document.fonts.ready.then(() => true)")
 
         def press(sel):   # a click through the page, so the browser doesn't scroll the button into view
             pg.evaluate("(s) => document.querySelector(s).click()", sel)
@@ -67,4 +72,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(*sys.argv[1:2])

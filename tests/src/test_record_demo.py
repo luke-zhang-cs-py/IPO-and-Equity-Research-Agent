@@ -42,6 +42,9 @@ class FakePage:
     def evaluate(self, script, arg=None):
         self.log.append(("click", arg) if arg is not None else ("js", script))
 
+    def wait_for_function(self, script):
+        self.log.append(("ready", script))
+
     def wait_for_timeout(self, ms):
         self.log.append(("wait", ms))
 
@@ -110,6 +113,8 @@ def test_the_demo_is_recorded_frame_by_frame_into_one_gif(recorder, tmp_path, ca
     assert log[0] == ("launch",)
     assert log[1] == ("new_page", {"viewport": {"width": 960, "height": 600}, "device_scale_factor": 1, "color_scheme": "dark"})
     assert log[2] == ("goto", (ROOT / "docs" / "app" / "index.html").as_uri())
+    assert log[3][0] == "ready" and "#fan svg" in log[3][1] and "#nyse-list li" in log[3][1]   # drawn and listed
+    assert log[4] == ("js", "document.fonts.ready.then(() => true)")                           # and in its fonts
     clicks = [arg for kind, *arg in log if kind == "click"]
     assert clicks == [['[data-preset="ipo"]'], ['[data-preset="memo"]'], ["#t-size"], ["#t-check"],
                       ['[data-load="good"]'], ['[data-load="ev"]'], ['[data-load="rating"]']]
@@ -126,3 +131,7 @@ def test_the_demo_is_recorded_frame_by_frame_into_one_gif(recorder, tmp_path, ca
                     [1800, 700, 700, 700, 1900, 1400, 1100, 1100, 1100, 1600, 1500, 1900, 2200], 0, True)
     assert f"{tmp_path / 'demo.gif'} (2 KB, 13 frames)" in capsys.readouterr().out
     assert (tmp_path / "demo.gif").read_bytes().startswith(b"GIF89a")
+    log.clear()                                                        # the same recording from the published site
+    rd.main("https://site.test/app/")
+    assert log[2] == ("goto", "https://site.test/app/") and log[3][0] == "ready"
+    assert len([e for e in log if e[0] == "screenshot"]) == 13
