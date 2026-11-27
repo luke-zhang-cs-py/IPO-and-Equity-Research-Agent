@@ -1,6 +1,6 @@
 # Tracking: the paper bot against the market, 2026-01-02 to 2026-11-25
 
-Updated 2026-11-26 04:14 UTC by `python evaluation/tracker.py`; every run is a line in `track.json`. The bot is the paper replay (a breakout signal on 30 large caps, every guardrail on, fills from daily bars); this measures how its account moves with the market, not whether it has an edge.
+Updated 2026-11-27 04:21 UTC by `python evaluation/tracker.py`; every run is a line in `track.json`. The bot is the paper replay (a breakout signal on 30 large caps, every guardrail on, fills from daily bars); this measures how its account moves with the market, not whether it has an edge.
 
 | | Account | SPY |
 |---|---|---|
