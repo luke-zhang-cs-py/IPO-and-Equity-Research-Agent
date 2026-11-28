@@ -1,6 +1,6 @@
 # Bot health
 
-Run `20261127T202916Z-edgar-9d94a7` at 2026-11-27T20:29:16Z, data through the 2026-11-25 session. **Status: failing.**
+Run `20261128T030023Z-edgar-37a4d2` at 2026-11-28T03:00:23Z, data through the 2026-11-27 session. **Status: failing.**
 
 ## Coverage
 
@@ -15,11 +15,11 @@ Run `20261127T202916Z-edgar-9d94a7` at 2026-11-27T20:29:16Z, data through the 20
 
 - missing_days: 1
 - moves: 12
-- staleness: 2
+- staleness: 3
 
 Errors (first 20):
 
-- staleness SNDK: newest bar 2026-11-19, 4 trading days behind 2026-11-25
+- staleness SNDK: newest bar 2026-11-19, 5 trading days behind 2026-11-27
 
 ## Sources this run
 
